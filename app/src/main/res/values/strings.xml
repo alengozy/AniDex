@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">AniDex</string>
+    <string name="anime_title">Anime Title</string>
+    <string name="synopsis">Plot Summary</string>
+    <string name="settings">Sorting</string>
+    <string name="rating">User Rating</string>
+    <string name="release_date">Release Date</string>
+    <string name="sorting_label">Sort</string>
+    <string name="sortingKey">sortKey</string>
+    <string name="pref_by_popularity">Most Popular</string>
+    <string name="pref_airing">Now Airing</string>
+    <string name="pref_highest_rated">Highest Rated</string>
+    <string name="title_pref">Sort By</string>
 </resources>
