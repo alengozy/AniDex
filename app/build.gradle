@@ -15,6 +15,10 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -35,9 +39,9 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
     implementation 'com.squareup.retrofit2:retrofit:2.7.1'
-    implementation "com.squareup.retrofit2:adapter-rxjava3:2.7.1"
     implementation "com.squareup.retrofit2:converter-gson:2.7.1"
     implementation "com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0-RC8"
     implementation 'com.google.android.material:material:1.1.0'
-    implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc01"
 }
