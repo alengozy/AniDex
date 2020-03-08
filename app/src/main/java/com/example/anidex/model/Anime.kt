@@ -3,7 +3,7 @@ package com.example.anidex.model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Anime(
+data class Anime(
     @Expose
     @SerializedName("mal_id") var malId: Int,
 

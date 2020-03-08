@@ -2,10 +2,10 @@
 <resources>
     <dimen name="act_horizontal_margin">16dp</dimen>
     <dimen name="act_vertical_margin">16dp</dimen>
-    <dimen name="anime_title">15dp</dimen>
+    <dimen name="anime_title">15sp</dimen>
     <dimen name="anime_title_padding">10dp</dimen>
     <dimen name="anime_cover_height">160dp</dimen>
-    <dimen name="card_anime_radius">0dp</dimen>
+    <dimen name="card_anime_radius">5dp</dimen>
     <dimen name="card_margin">5dp</dimen>
     <dimen name="layout_margin_left">10dp</dimen>
     <dimen name="layout_margin_top3dp">3dp</dimen>
@@ -13,5 +13,5 @@
     <dimen name="padding_layout">16dp</dimen>
     <dimen name="details_height">500dp</dimen>
     <dimen name="rating_padding_bottom">5dp</dimen>
-    <dimen name="rating">12dp</dimen>
+    <dimen name="rating">12sp</dimen>
 </resources>

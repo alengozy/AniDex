@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:adjustViewBounds="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/card_margin"
+        android:layout_gravity="center"
+        android:elevation="3dp"
+        app:cardBackgroundColor="@color/bgColor"
+        card_view:cardCornerRadius="@dimen/card_anime_radius">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/anime_cover_height"
+                android:id="@+id/thumbnail"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/thumbnail"
+                android:paddingLeft="@dimen/anime_title_padding"
+                android:paddingRight="@dimen/anime_title_padding"
+                android:paddingTop="@dimen/anime_title_padding"
+                android:textColor="@color/anime_title"
+                android:textSize="@dimen/anime_title"/>
+
+            <TextView
+                android:id="@+id/user_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title"
+                android:paddingLeft="@dimen/anime_title_padding"
+                android:paddingRight="@dimen/anime_title_padding"
+                android:paddingBottom="@dimen/rating_padding_bottom"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/rating"/>
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="100dp"
+                android:text="episodes" />
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
 
 </LinearLayout>
