@@ -1,15 +1,20 @@
 package com.example.anidex
 
 import android.content.res.Configuration
+import android.icu.lang.UCharacter
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.anidex.model.Anime
+import com.example.anidex.model.Top
 import com.example.anidex.network.APIService
 import com.example.anidex.ui.CardViewBinder
 import com.example.anidex.ui.FeedAdapter
@@ -27,13 +32,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var drawerLayout: DrawerLayout
     lateinit var navigationView: NavigationView
     private var compositeDisposable: CompositeDisposable? = null
-    private var dataList: ArrayList<Anime>? = null
+    private var dataList: MutableList<Anime> = mutableListOf()
     private var adapter: FeedAdapter? = null
     private var page : Int = 1
+    private var loading: Boolean = false
+    private var totalItems: Int = 0
+    private var lastVisibleItem: Int = 0
     private var param : String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        swipeRefreshLayout.setOnRefreshListener {
+            refreshData()
+        }
         compositeDisposable = CompositeDisposable()
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -46,7 +57,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         navigationView.setNavigationItemSelectedListener(this)
         initViews()
-        loadJSON()
+        fetchPage()
+
     }
 
 
@@ -54,43 +66,74 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun initViews(){
-        rv_anime.setHasFixedSize(true)
-        if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            rv_anime.layoutManager = GridLayoutManager(this, 2)
-        } else {
-            rv_anime.layoutManager = GridLayoutManager(this, 4)
-        }
+
+    private fun initViews(){
+
+
+
+
     }
 
+    fun refreshData(){
+        page = 1
+        dataList.clear()
+        loadJSON()
+        swipeRefreshLayout.isRefreshing = false
+        loading = false
+    }
+    fun fetchPage(){
+        loadJSON()
+        page++
+    }
     fun loadJSON(){
         val requestInterface = APIService.createClient()
         compositeDisposable?.add(
-            requestInterface.getSeries(page, param)
+            requestInterface.getSeries(page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(this::handleResponse, this::handleError))
 
-
     }
     fun cardClick(data: Anime){
-
+        Toast.makeText(this, data.title, Toast.LENGTH_SHORT).show()
     }
-    private fun handleResponse(animeList: List<Anime>){
+    private fun handleResponse(animeList: Top){
+        animeList.top?.let { dataList.addAll(it) }
         if(adapter == null) {
             val viewBinders = mutableMapOf<FeedItemClass, FeedItemBinder>()
-            val cardViewBinder = CardViewBinder { data: Anime -> cardClick(data) }
+            val cardViewBinder = CardViewBinder (this){ data: Anime -> cardClick(data) }
             @Suppress("UNCHECKED_CAST")
             viewBinders.put(cardViewBinder.modelClass, cardViewBinder as FeedItemBinder)
             adapter = FeedAdapter(viewBinders)
         }
         rv_anime.apply{
-            layoutManager = GridLayoutManager(this@MainActivity, 2)
+            setHasFixedSize(true)
+            itemAnimator = DefaultItemAnimator()
+            layoutManager =
+                if(this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    GridLayoutManager(this@MainActivity, 2)
+                } else {
+
+                    GridLayoutManager(this@MainActivity, 4)
+                }
+            addOnScrollListener(object: RecyclerView.OnScrollListener(){
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    totalItems = (layoutManager as GridLayoutManager).itemCount
+                    lastVisibleItem = (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                    if(!loading && totalItems<=(lastVisibleItem+3)){
+                        loading = true
+                        fetchPage()
+                    }
+                }
+
+            })
         }
         if(rv_anime.adapter == null){
             rv_anime.adapter = adapter
         }
-        (rv_anime.adapter as FeedAdapter).submitList(animeList ?: emptyList())
+        (rv_anime.adapter as FeedAdapter).submitList(dataList as List<Any>? ?: emptyList())
+        loading = false
     }
     private fun handleError(error: Throwable){
         Toast.makeText(this, "Error ${error.localizedMessage}", Toast.LENGTH_SHORT).show()

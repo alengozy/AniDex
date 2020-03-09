@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ED6A5A</color>
-    <color name="colorPrimaryDark">#D64933</color>
-    <color name="colorAccent">#ED3821</color>
+    <color name="colorPrimary">#3D3D3D</color>
+    <color name="colorPrimaryDark">#212121</color>
+    <color name="colorAccent">#FF0000</color>
     <color name="bgColor">#9BC1BC</color>
-    <color name="anime_title">#4c4c4c</color>
+    <color name="anime_title">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
 </resources>

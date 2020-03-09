@@ -24,7 +24,7 @@
                 android:layout_height="@dimen/anime_cover_height"
                 android:id="@+id/thumbnail"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleType="fitXY"/>
+                android:scaleType="fitXY" />
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"

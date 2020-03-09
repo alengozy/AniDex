@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class FeedItemViewBinder<M, in VH: RecyclerView.ViewHolder>(
     val modelClass: Class<out M>): DiffUtil.ItemCallback<M>(){
-
     abstract fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder
     abstract fun bindViewHolder(model: M, viewHolder: VH)
     abstract fun getFeedItemType(): Int
