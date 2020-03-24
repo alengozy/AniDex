@@ -47,6 +47,7 @@
             android:id="@+id/rv_anime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layoutAnimation="@anim/recycler_anim"
             android:clipToPadding="false"
             android:scrollbars="vertical" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

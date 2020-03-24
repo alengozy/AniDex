@@ -1,6 +1,7 @@
 package com.example.anidex.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
@@ -13,10 +14,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 class AnimeViewModel: ViewModel(){
 
     var animeList: LiveData<PagedList<Anime>>
-
+    val filterText: MutableLiveData<String> = MutableLiveData()
     private val compositeDisposable = CompositeDisposable()
 
-    private val pageSize = 44
+    private val pageSize = 50
 
     private val sourceFactory: AnimeDataFactory
 
@@ -24,7 +25,7 @@ class AnimeViewModel: ViewModel(){
         sourceFactory = AnimeDataFactory(APIService.createClient(), compositeDisposable)
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
-            .setInitialLoadSizeHint(pageSize)
+            .setInitialLoadSizeHint(pageSize*2)
             .setEnablePlaceholders(false)
             .build()
         animeList = LivePagedListBuilder<Int, Anime>(sourceFactory, config).build()

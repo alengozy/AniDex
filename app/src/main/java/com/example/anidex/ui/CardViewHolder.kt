@@ -17,7 +17,7 @@ import com.example.anidex.model.Anime
 import kotlinx.android.synthetic.main.card_layout.view.*
 import android.graphics.Color
 import androidx.core.content.ContextCompat
-
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 
 
 class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
@@ -28,7 +28,7 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
                 .asBitmap()
                 .load(data?.imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(R.mipmap.ic_launcher)
+                .transition(BitmapTransitionOptions.withCrossFade())
                 .listener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
 

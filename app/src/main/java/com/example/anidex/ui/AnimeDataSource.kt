@@ -1,7 +1,6 @@
 package com.example.anidex.ui
 
 
-import android.net.Network
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.example.anidex.model.Anime
@@ -15,7 +14,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 
-class AnimeDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable): PageKeyedDataSource<Int, Anime>(){
+class AnimeDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable, private val searchKey: String): PageKeyedDataSource<Int, Anime>(){
     val networkState = MutableLiveData<NetworkState>()
     val initialLoad = MutableLiveData<NetworkState>()
 
@@ -30,7 +29,6 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
-
                         anime ->
                     initialLoad.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)

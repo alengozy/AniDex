@@ -76,6 +76,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             animeViewModel.animeList.observe(this@MainActivity, Observer<PagedList<Anime>>{animeadapter.submitList(it)})
             animeViewModel.getNetworkState().observe(this@MainActivity, Observer<NetworkState>{animeadapter.setNetworkState(it)})
         }
+        animeViewModel.getNetworkState().observe(this@MainActivity, Observer{networkState -> if(networkState?.status != NetworkState.LOADING.status && networkState?.status!=NetworkState.LOADED.status)
+            Toast.makeText(this@MainActivity, "${networkState.message}. Swipe-up to try again", Toast.LENGTH_SHORT).show()
+            swipeRefreshLayout.isRefreshing = false
+        })
     }
     private fun initSwipeRefresh(){
         animeViewModel.getRefreshState().observe(this, Observer{networkState ->
