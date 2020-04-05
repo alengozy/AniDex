@@ -1,28 +1,36 @@
 package com.example.anidex.ui
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.anidex.R
 import com.example.anidex.model.Anime
 import kotlinx.android.synthetic.main.card_layout.view.*
-import android.graphics.Color
-import androidx.core.content.ContextCompat
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 
-
+fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
+    itemView.setOnClickListener {
+        event.invoke(it, adapterPosition, itemViewType)
+    }
+    return this
+}
 class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
 
     fun bind(data: Anime?){
+
             Glide
                 .with(itemView.context)
                 .asBitmap()
@@ -58,6 +66,7 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
             return CardViewHolder(view)
         }
     }
+
     fun manipulateColor(color: Int, factor: Float): Int {
         val a = Color.alpha(color)
         val r = Math.round(Color.red(color) * factor)
@@ -70,4 +79,5 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
             Math.min(b, 255)
         )
     }
+
 }

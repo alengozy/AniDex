@@ -14,25 +14,26 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 
-class AnimeDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable, private val searchKey: String): PageKeyedDataSource<Int, Anime>(){
+class AnimeDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable, private val searchKey: String, private var page: Int): PageKeyedDataSource<Int, Anime>(){
     val networkState = MutableLiveData<NetworkState>()
     val initialLoad = MutableLiveData<NetworkState>()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, Anime>
+
     ) {
         networkState.postValue(NetworkState.LOADING)
         initialLoad.postValue(NetworkState.LOADING)
         compositeDisposable.add(
-            service.getSeries(1)
+            service.getSeries(page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
                         anime ->
                     initialLoad.postValue(NetworkState.LOADED)
                     networkState.postValue(NetworkState.LOADED)
-                    anime.top?.let { callback.onResult(it, null, 2) }
+                    anime.top?.let { callback.onResult(it, null, page++) }
                 }, {
                     throwable ->
                     networkState.postValue(NetworkState.error(throwable.message))
@@ -41,7 +42,7 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Anime>) {
         networkState.postValue(NetworkState.LOADING)
         compositeDisposable.add(
-            service.getSeries(params.key)
+            service.getSeries(page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
@@ -50,7 +51,7 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
                         networkState.postValue(NetworkState.LOADED)
 
                         val nextKey =
-                            if (params.key == anime.top?.size) null else params.key + 1
+                            if (params.key == anime.top?.size) null else page++
                         anime.top?.let { callback.onResult(it, nextKey) }
                     }, {
                             throwable ->

@@ -17,7 +17,7 @@ class AnimeViewModel: ViewModel(){
     val filterText: MutableLiveData<String> = MutableLiveData()
     private val compositeDisposable = CompositeDisposable()
 
-    private val pageSize = 50
+    private val pageSize = 10
 
     private val sourceFactory: AnimeDataFactory
 
@@ -25,7 +25,7 @@ class AnimeViewModel: ViewModel(){
         sourceFactory = AnimeDataFactory(APIService.createClient(), compositeDisposable)
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
-            .setInitialLoadSizeHint(pageSize*2)
+            .setInitialLoadSizeHint(50)
             .setEnablePlaceholders(false)
             .build()
         animeList = LivePagedListBuilder<Int, Anime>(sourceFactory, config).build()

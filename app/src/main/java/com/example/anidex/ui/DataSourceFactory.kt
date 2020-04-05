@@ -11,7 +11,7 @@ class AnimeDataFactory(private val service: APIService,  private val compositeDi
     val searchKey: String = ""
 
     override fun create(): DataSource<Int, Anime> {
-        val animeDataSource = AnimeDataSource(service, compositeDisposable, searchKey)
+        val animeDataSource = AnimeDataSource(service, compositeDisposable, searchKey, 1)
         mutableLiveData.postValue(animeDataSource)
         return animeDataSource
     }
