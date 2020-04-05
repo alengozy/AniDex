@@ -1,6 +1,46 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-</RelativeLayout>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Your scrolling content -->
+        <TextView
+            android:id="@+id/detail_title"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:layout_scrollFlags="scroll|enterAlways"/>
+        <androidx.cardview.widget.CardView
+            android:layout_height="300dp"
+            android:layout_width="@dimen/anime_cover_height"
+            android:id="@+id/detail_card"
+            app:cardCornerRadius="5dp"
+            app:cardElevation="1dp">
+            <ImageView
+                android:id="@+id/detail_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY">
+
+            </ImageView>
+        </androidx.cardview.widget.CardView>
+    </com.google.android.material.appbar.AppBarLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -35,7 +35,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val itemOnClick: (View, Int, Int) -> Unit = { view, position, type ->
         val listItem = animeViewModel.animeList.value?.get(position)
         Toast.makeText(this@MainActivity, listItem?.title.toString(), Toast.LENGTH_SHORT).show()
-        val intent = Intent(this, DetailsActivity::class.java)
+        val title = listItem?.title.toString()
+        val imagethumb = listItem?.imageUrl
+        val intent = Intent(this, DetailsActivity::class.java).apply{
+            putExtra("title", title)
+            putExtra("image", imagethumb)
+        }
+
         startActivity(intent)
     }
     override fun onCreate(savedInstanceState: Bundle?) {

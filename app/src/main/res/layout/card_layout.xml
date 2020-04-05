@@ -48,11 +48,11 @@
                 android:textSize="@dimen/rating"/>
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/episode_ct"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="100dp"
-                android:text="episodes" />
+                android:text="episodes"/>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

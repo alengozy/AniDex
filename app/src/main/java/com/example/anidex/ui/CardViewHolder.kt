@@ -46,12 +46,13 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
                         val p = Palette.from(resource).generate()
                         val pColorPalette = p.getVibrantColor(ContextCompat.getColor(itemView.context, R.color.bgColor))
                         itemView.card_view.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
+                        itemView.episode_ct.setTextColor(manipulateColor(pColorPalette, 0.9f))
                         return false
                     }
                 })
                 .fitCenter()
                 .into(itemView.thumbnail)
-
+            itemView.episode_ct.text = data?.episodes.toString()
             itemView.title.text = data?.title
             itemView.user_rating.text = data?.score.toString()
 
