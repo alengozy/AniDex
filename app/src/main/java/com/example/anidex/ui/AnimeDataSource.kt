@@ -49,7 +49,6 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
                     {
                             anime ->
                         networkState.postValue(NetworkState.LOADED)
-
                         val nextKey =
                             if (params.key == anime.top?.size) null else page++
                         anime.top?.let { callback.onResult(it, nextKey) }

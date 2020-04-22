@@ -19,8 +19,8 @@ interface APIService {
     @GET("/v3/top/anime/{page}/{param}")
     fun getSeries(@Path("page") page: Int?, @Path("param") param: String? = ""): Observable<Top>?
 
-    @GET("/v3/anime/{id}")
-    fun getAnimeDetail(@Path("id") id: Int?): Observable<AnimeDetail?>?
+    @GET("/v3/anime/{id}/{request}")
+    fun getAnimeDetail(@Path("id") id: Int?, @Path("request") request: String): Observable<AnimeDetail?>?
 
     @GET("/v3/search/anime")
     fun searchAnime(@Query("q") q: String?, @Query("page") page: Int?): Observable<List<Anime>>?

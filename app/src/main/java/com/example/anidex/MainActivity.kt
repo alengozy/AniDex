@@ -32,14 +32,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var page : Int = 1
     private var loading: Boolean = false
-    private val itemOnClick: (View, Int, Int) -> Unit = { view, position, type ->
+    private val itemOnClick: (View, Int, Int) -> Unit = { _, position, _ ->
         val listItem = animeViewModel.animeList.value?.get(position)
         Toast.makeText(this@MainActivity, listItem?.title.toString(), Toast.LENGTH_SHORT).show()
-        val title = listItem?.title.toString()
-        val imagethumb = listItem?.imageUrl
         val intent = Intent(this, DetailsActivity::class.java).apply{
-            putExtra("title", title)
-            putExtra("image", imagethumb)
+            putExtra("malId", listItem?.malId)
+            putExtra("title", listItem?.title.toString())
+            putExtra("image", listItem?.imageUrl)
+            putExtra("rank", listItem?.rank)
+            putExtra("startDate", listItem?.startDate)
+            putExtra("endDate", listItem?.endDate)
+            putExtra("score", listItem?.score)
         }
 
         startActivity(intent)
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        overridePendingTransition(0, 0)
         swipeRefreshLayout.setOnRefreshListener {
         }
         toolbar = findViewById(R.id.toolbar)
@@ -96,12 +100,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
     }
     private fun initSwipeRefresh(){
-        animeViewModel.getRefreshState().observe(this, Observer{networkState ->
-
+        animeViewModel.getNetworkState().observe(this, Observer{networkState ->
                     swipeRefreshLayout.isRefreshing = networkState?.status == NetworkState.LOADING.status
-
-
-
         })
         swipeRefreshLayout.setOnRefreshListener { animeViewModel.refresh() }
     }

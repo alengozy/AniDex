@@ -45,8 +45,4 @@ class AnimeViewModel: ViewModel(){
         sourceFactory.mutableLiveData
     ) { it.networkState }
 
-    fun getRefreshState(): LiveData<NetworkState> = Transformations.switchMap<AnimeDataSource, NetworkState>(
-        sourceFactory.mutableLiveData
-    ) { it.initialLoad }
-
 }

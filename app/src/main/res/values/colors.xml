@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#3D3D3D</color>
     <color name="colorPrimaryDark">#212121</color>
-    <color name="colorAccent">#FF0000</color>
+    <color name="colorAccent">#00ECFF</color>
     <color name="bgColor">#9BC1BC</color>
     <color name="anime_title">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
