@@ -39,10 +39,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             putExtra("malId", listItem?.malId)
             putExtra("title", listItem?.title.toString())
             putExtra("image", listItem?.imageUrl)
-            putExtra("rank", listItem?.rank)
-            putExtra("startDate", listItem?.startDate)
-            putExtra("endDate", listItem?.endDate)
-            putExtra("score", listItem?.score)
+            putExtra("rank", listItem?.rank.toString())
+            putExtra("score", listItem?.score.toString())
         }
 
         startActivity(intent)
@@ -102,8 +100,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun initSwipeRefresh(){
         animeViewModel.getNetworkState().observe(this, Observer{networkState ->
                     swipeRefreshLayout.isRefreshing = networkState?.status == NetworkState.LOADING.status
+
         })
-        swipeRefreshLayout.setOnRefreshListener { animeViewModel.refresh() }
+        swipeRefreshLayout.setOnRefreshListener {animeViewModel.refresh()}
     }
 
 }
