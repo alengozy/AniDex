@@ -14,4 +14,5 @@
     <dimen name="details_height">500dp</dimen>
     <dimen name="rating_padding_bottom">5dp</dimen>
     <dimen name="rating">12sp</dimen>
+    <dimen name="scoreranksize">24sp</dimen>
 </resources>

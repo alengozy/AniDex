@@ -11,4 +11,8 @@
     <string name="pref_airing">Now Airing</string>
     <string name="pref_highest_rated">Highest Rated</string>
     <string name="title_pref">Sort By</string>
+    <string name="logo">MyAnimeList</string>
+    <string name="score">Score:</string>
+    <string name="rank">Rank:</string>
+    <string name="ranklabel">#%1$s</string>
 </resources>
