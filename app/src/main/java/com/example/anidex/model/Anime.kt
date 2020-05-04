@@ -32,12 +32,6 @@ data class Anime(
     @SerializedName("episodes") var episodes: Int,
 
     @Expose
-    @SerializedName("start_date") var startDate: String,
-
-    @Expose
-    @SerializedName("end_date") var endDate: String,
-
-    @Expose
     @SerializedName("members") var members: Int,
 
     @Expose
