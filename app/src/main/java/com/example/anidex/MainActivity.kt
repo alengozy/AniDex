@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -20,7 +19,7 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.model.Anime
-import com.example.anidex.model.AnimeDetail
+import com.example.anidex.model.AnimeMangaDetail
 import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
 import com.example.anidex.ui.*
@@ -28,9 +27,7 @@ import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.details_layout.*
 import kotlinx.android.synthetic.main.drawer_layout.*
-import kotlinx.android.synthetic.main.loadingdialoglayout.*
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -130,7 +127,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     @ExperimentalStdlibApi
-    private fun onSuccess(response: AnimeDetail?, listItem: Anime?){
+    private fun onSuccess(response: AnimeMangaDetail?, listItem: Anime?){
         intent = Intent(this, DetailsActivity::class.java).apply{
             putExtra("malId", listItem?.malId)
             putExtra("title", listItem?.title.toString())
@@ -155,6 +152,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.putExtra("synopsis", response?.synopsis.toString())
         intent.putExtra("trailerlink", response?.trailer.toString())
         intent.putExtra("episodes", response?.episodes)
+        intent.putExtra("englishtitle", response?.englishtitle)
         detailNetworkState.postValue(NetworkState.LOADED)
         startActivity(intent)
     }

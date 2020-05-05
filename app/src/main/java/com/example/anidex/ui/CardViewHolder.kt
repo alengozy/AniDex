@@ -1,5 +1,6 @@
 package com.example.anidex.ui
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -17,9 +18,11 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.example.anidex.MainActivity
 import com.example.anidex.R
 import com.example.anidex.model.Anime
 import kotlinx.android.synthetic.main.card_layout.view.*
+import java.util.*
 
 fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
     itemView.setOnClickListener {
@@ -28,7 +31,6 @@ fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, t
     return this
 }
 class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
-
     fun bind(data: Anime?){
 
             Glide
@@ -46,13 +48,14 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
                         val p = Palette.from(resource).generate()
                         val pColorPalette = p.getVibrantColor(ContextCompat.getColor(itemView.context, R.color.bgColor))
                         itemView.card_view.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
-                        itemView.episode_ct.setTextColor(manipulateColor(pColorPalette, 0.9f))
+                        itemView.cardepisode.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
                         return false
                     }
                 })
                 .fitCenter()
                 .into(itemView.thumbnail)
-            itemView.episode_ct.text = data?.episodes.toString()
+            val epsstring = data?.episodes.toString() + "eps"
+            itemView.episode_ct.text = epsstring
             itemView.title.text = data?.title
             itemView.user_rating.text = data?.score.toString()
 

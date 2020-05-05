@@ -23,12 +23,39 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 app:collapseIcon="@drawable/abc_vector_test"
-                app:layout_scrollFlags="scroll|enterAlways" />
+                app:layout_scrollFlags="scroll|enterAlways"
+                >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/toolbar_details_main"
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:singleLine="true"/>
+
+                    <TextView
+                        android:id="@+id/toolbar_details_sub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/hintcolor"
+                        android:textSize="12sp"
+                        android:text = "@string/logo"/>
+
+                </LinearLayout>
+
+            </androidx.appcompat.widget.Toolbar>
 
             <LinearLayout
                 android:id="@+id/detailslinearmain"
                 android:layout_width="match_parent"
                 android:layout_height="255dp"
+                android:layout_marginTop="@dimen/layout_margin_top3dp"
+                android:layout_marginBottom="@dimen/layout_margin_top3dp"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView
@@ -55,7 +82,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/layout_margin_top3dp"
+                    android:layout_marginStart="@dimen/layout_margin_top3dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -70,6 +97,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/englishtitledetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/hintcolor"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -119,7 +154,7 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="130dp"
                 android:layout_margin="5dp"
                 app:cardBackgroundColor="@color/colorPrimary"
                 app:cardCornerRadius="5dp">
@@ -128,6 +163,18 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/layout_margin_top10dp"
+                        android:layout_marginTop="@dimen/layout_margin_top3dp"
+                        android:fontFamily="@font/baloo2medium"
+                        android:text="@string/stats"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp" />
 
                     <GridLayout
                         android:layout_width="match_parent"
@@ -144,19 +191,22 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:fontFamily="@font/baloo2medium"
                                 android:text="@string/score"
                                 android:textColor="@color/colorAccent"
-                                android:textSize="@dimen/scoreranksize"
-                                android:layout_gravity="center"/>
+                                android:textSize="@dimen/scoreranksize" />
 
                             <TextView
                                 android:id="@+id/scoredetails"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="-3dp"
+                                android:fontFamily="@font/baloo2medium"
                                 android:text="0.0"
                                 android:textColor="@color/white"
-                                android:textSize="20sp"
-                                android:layout_gravity="center"/>
+                                android:textSize="20sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -167,19 +217,22 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:fontFamily="@font/baloo2medium"
                                 android:text="@string/rank"
                                 android:textColor="@color/colorAccent"
-                                android:textSize="@dimen/scoreranksize"
-                                android:layout_gravity="center"/>
+                                android:textSize="@dimen/scoreranksize" />
 
                             <TextView
                                 android:id="@+id/rankdetails"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="-3dp"
+                                android:fontFamily="@font/baloo2medium"
                                 android:text="#0"
-                                android:textSize="20sp"
                                 android:textColor="@color/white"
-                                android:layout_gravity="center" />
+                                android:textSize="20sp" />
                         </LinearLayout>
                     </GridLayout>
 
@@ -188,8 +241,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:fontFamily="@font/malfont"
+                        android:shadowDx="@android:integer/config_longAnimTime"
                         android:text="@string/logo"
-                        android:textColor="@color/colorAccent" />
+                        android:textColor="@color/white" />
 
 
                 </LinearLayout>
@@ -203,32 +258,50 @@
                 android:layout_margin="5dp"
                 app:cardBackgroundColor="@color/colorPrimary"
                 app:cardCornerRadius="5dp" >
-                <com.ms.square.android.expandabletextview.ExpandableTextView
-                    xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/synopsis_view"
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    expandableTextView:maxCollapsedLines="4"
-                    expandableTextView:animDuration="200">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:id="@id/expandable_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        android:fontFamily="@font/baloo2regular"
-                        />
-                    <ImageButton
-                        android:id="@id/expand_collapse"
+                        android:id="@+id/textView3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:layout_gravity="end|bottom"
-                        android:background="@android:color/transparent"/>
-                </com.ms.square.android.expandabletextview.ExpandableTextView>
+                        android:layout_marginStart="@dimen/layout_margin_top10dp"
+                        android:layout_marginTop="@dimen/layout_margin_top3dp"
+                        android:fontFamily="@font/baloo2medium"
+                        android:text="@string/synopsis"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+
+                    <com.ms.square.android.expandabletextview.ExpandableTextView
+                        android:id="@+id/synopsis_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:animDuration="200"
+                        app:maxCollapsedLines="3">
+
+                        <TextView
+                            android:id="@id/expandable_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="@font/baloo2regular"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
+                        <ImageButton
+                            android:id="@id/expand_collapse"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|bottom"
+                            android:background="@android:color/transparent"
+                            android:padding="16dp" />
+                    </com.ms.square.android.expandabletextview.ExpandableTextView>
+                </LinearLayout>
 
 
             </androidx.cardview.widget.CardView>

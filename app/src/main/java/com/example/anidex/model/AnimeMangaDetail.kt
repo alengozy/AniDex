@@ -3,7 +3,10 @@ package com.example.anidex.model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class AnimeDetail(
+data class AnimeMangaDetail(
+    @Expose
+    @SerializedName("title_english") var englishtitle: String,
+    
     @Expose
     @SerializedName("synopsis") var synopsis: String,
 

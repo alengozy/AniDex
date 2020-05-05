@@ -1,10 +1,9 @@
 package com.example.anidex.network
 import com.example.anidex.model.Anime
-import com.example.anidex.model.AnimeDetail
+import com.example.anidex.model.AnimeMangaDetail
 import com.example.anidex.model.Top
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Observable
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -20,7 +19,7 @@ interface APIService {
     fun getSeries(@Path("page") page: Int?, @Path("param") param: String? = ""): Observable<Top>?
 
     @GET("/v3/anime/{id}/{request}")
-    fun getAnimeDetail(@Path("id") id: Int?, @Path("request") request: String? = ""): Observable<AnimeDetail?>?
+    fun getAnimeDetail(@Path("id") id: Int?, @Path("request") request: String? = ""): Observable<AnimeMangaDetail?>?
 
     @GET("/v3/search/anime")
     fun searchAnime(@Query("q") q: String?, @Query("page") page: Int?): Observable<List<Anime>>?

@@ -1,19 +1,10 @@
 package com.example.anidex
 
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.example.anidex.model.AnimeDetail
-import com.example.anidex.model.Character
-import com.example.anidex.model.NetworkState
 import kotlinx.android.synthetic.main.details_layout.*
-import java.time.OffsetDateTime
-import java.util.*
 
 class DetailsActivity: AppCompatActivity() {
     @ExperimentalStdlibApi
@@ -27,9 +18,11 @@ class DetailsActivity: AppCompatActivity() {
         detail_releasedate.text = intent.getStringExtra("fromdate")
         detail_status.text = intent.getStringExtra("status")
         val enddate = intent.getStringExtra("enddate")
+        toolbar_details_main.text = intent.getStringExtra("title")
         if(enddate!="Null null, null")
             enddate_detail.text = enddate
         synopsis_view.text = intent.getStringExtra("synopsis")
+        englishtitledetail.text = intent.getStringExtra("englishtitle")
         Glide
             .with(this@DetailsActivity)
             .load(intent.getStringExtra("image"))

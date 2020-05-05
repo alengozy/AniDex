@@ -6,4 +6,5 @@
     <color name="bgColor">#9BC1BC</color>
     <color name="anime_title">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
+    <color name="hintcolor">#D4D4D4</color>
 </resources>

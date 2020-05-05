@@ -19,6 +19,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/anime_cover_height"
@@ -47,12 +48,37 @@
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/rating"/>
 
-            <TextView
-                android:id="@+id/episode_ct"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="100dp"
-                android:text="episodes"/>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardepisode"
+                android:layout_width="60dp"
+                android:layout_height="25dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="-9dp"
+                android:layout_marginTop="5dp"
+                card_view:cardBackgroundColor="#989898"
+                card_view:cardCornerRadius="@dimen/layout_margin_top10dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/episode_ct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_gravity="center|center_vertical"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/baloo2medium"
+                        android:text="24eps"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
