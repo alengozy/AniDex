@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">AniDex</string>
-    <string name="title">Title</string>
+    <string name="title">Title:</string>
     <string name="synopsis">Plot Summary</string>
     <string name="settings">Sorting</string>
     <string name="rating">User Rating</string>
-    <string name="release_date">Release Date</string>
+    <string name="release_date">Release Date:</string>
+    <string name="end_date">End Date:</string>
+    <string name="enddate_placeholder">-</string>
     <string name="sorting_label">Sort</string>
     <string name="sortingKey">sortKey</string>
     <string name="pref_by_popularity">Most Popular</string>
@@ -14,5 +16,10 @@
     <string name="logo">MyAnimeList</string>
     <string name="score">Score:</string>
     <string name="rank">Rank:</string>
+    <string name="status">Status:</string>
+    <string name="genres">Genres</string>
+    <string name="trailer">Trailer</string>
     <string name="ranklabel">#%1$s</string>
+    <string name="datestring">%1$s %2$d, %3$d</string>
+    <string name="loadingdesc">Fetching title details. Please wait…</string>
 </resources>

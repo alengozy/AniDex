@@ -9,7 +9,7 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.example.anidex"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -51,13 +51,14 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
-    implementation "androidx.paging:paging-runtime:2.1.1"
-    implementation "androidx.paging:paging-rxjava2-ktx:2.1.1"
-    implementation "androidx.room:room-runtime:2.2.4"
-    annotationProcessor "androidx.room:room-compiler:2.2.4"
-    implementation "androidx.room:room-rxjava2:2.2.4"
+    implementation "androidx.paging:paging-runtime:2.1.2"
+    implementation "androidx.paging:paging-rxjava2-ktx:2.1.2"
+    implementation "androidx.room:room-runtime:2.2.5"
+    annotationProcessor "androidx.room:room-compiler:2.2.5"
+    implementation "androidx.room:room-rxjava2:2.2.5"
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     implementation "androidx.fragment:fragment-ktx:1.2.4"
+    implementation "com.ms-square:expandableTextView:0.1.4"
 }
