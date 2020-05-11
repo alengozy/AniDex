@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-
+    <group>
+        <item android:title="@string/menutop">
+            <menu>
+                <item android:id="@+id/nav_top_anime"
+                android:title="@string/menuanime"
+                    android:icon="@drawable/anime"/>
+                <item android:id="@+id/nav_top_manga"
+                    android:title="@string/menumanga"
+                    android:icon="@drawable/manga"/>
+            </menu>
+        </item>
+    </group>
 </menu>
