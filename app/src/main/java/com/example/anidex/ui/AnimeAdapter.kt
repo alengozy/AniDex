@@ -4,12 +4,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.anidex.R
-import com.example.anidex.model.Anime
+import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.model.NetworkState.Companion.LOADED
 
-class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit): PagedListAdapter<Anime, RecyclerView.ViewHolder>(AniDiffUtil()){
+class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit): PagedListAdapter<AnimeManga, RecyclerView.ViewHolder>(AniDiffUtil()){
     private var networkState: NetworkState? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val viewCVH = CardViewHolder.createHolder(parent)
@@ -20,7 +19,9 @@ class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit): PagedListAd
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        (holder as CardViewHolder).bind(getItem(position))
+        if(holder is CardViewHolder)
+            holder.bind(getItem(position))
+
     }
 
 
