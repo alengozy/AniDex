@@ -18,11 +18,25 @@
     <string name="rank">Rank:</string>
     <string name="status">Status:</string>
     <string name="genres">Genres</string>
-    <string name="trailer">Trailer</string>
+    <string name="trailer">Trailer:</string>
     <string name="ranklabel">#%1$s</string>
     <string name="datestring">%1$s %2$d, %3$d</string>
     <string name="loadingdesc">Fetching title details. Please wait…</string>
     <string name="toolbardetailtitle">%1$s\n%2$s</string>
     <string name="episodecount">%1$seps</string>
     <string name="stats">Stats:</string>
+    <string name="YouTube">YouTube</string>
+    <string name="characters">Characters:</string>
+    <string name="menuanime">Anime</string>
+    <string name="menumanga">Manga</string>
+    <string name="menutop">Top</string>
+    <string-array name="types_array">
+        <item>Anime</item>
+        <item>Manga</item>
+    </string-array>
+    <string-array name="requests_array">
+        <item>All-Time</item>
+        <item>Airing</item>
+        <item>Upcoming</item>
+    </string-array>
 </resources>

@@ -1,6 +1,10 @@
 package com.example.anidex.model
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Character (
     @Expose
     @SerializedName("mal_id") var mal_id: Int,
@@ -11,4 +15,5 @@ data class Character (
     @Expose
     @SerializedName("role") var role: String
 
-)
+) : Parcelable
+

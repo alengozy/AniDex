@@ -3,18 +3,9 @@ package com.example.anidex.model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class Top(
-    @Expose
-    @SerializedName("top") var top: List<Anime>?
-)
-
-
-data class Anime(
+data class AnimeManga(
     @Expose
     @SerializedName("mal_id") var malId: Int,
-
-    @Expose
-    @SerializedName("rank") var rank: Int,
 
     @Expose
     @SerializedName("title") var title: String,
@@ -30,6 +21,9 @@ data class Anime(
 
     @Expose
     @SerializedName("episodes") var episodes: Int,
+
+    @Expose
+    @SerializedName("volumes") var volumes: Int,
 
     @Expose
     @SerializedName("members") var members: Int,

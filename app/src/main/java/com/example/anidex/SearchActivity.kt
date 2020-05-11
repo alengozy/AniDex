@@ -3,52 +3,41 @@ package com.example.anidex
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.Window
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.anidex.ui.AnimeAdapter
+import com.example.anidex.ui.SearchViewModel
+import kotlinx.android.synthetic.main.search_activity_layout.*
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
-import com.example.anidex.ui.*
-import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.drawer_layout.*
+import kotlinx.android.synthetic.main.spinner_item.*
 import java.time.OffsetDateTime
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private lateinit var  toolbar: Toolbar
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
-    private lateinit var viewModel: AnimeViewModel
-    private lateinit var animeadapter: AnimeAdapter
-    private lateinit var loadingDialog: Dialog
-    private var detailNetworkState: MutableLiveData<NetworkState> = MutableLiveData()
-    private val service: APIService = APIService.createClient()
-    private val compositeDisposable = CompositeDisposable()
-
-
+class SearchActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     private val itemOnClick: (View, Int, Int) -> Unit = { _, position, _ ->
         val listItem = viewModel.animeList.value?.get(position)
-        Toast.makeText(this@MainActivity, listItem?.title.toString(), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@SearchActivity, listItem?.title.toString(), Toast.LENGTH_SHORT).show()
         initDialog()
         val detailIntent = Intent(this, DetailsActivity::class.java)
         Handler().postDelayed({
@@ -57,91 +46,123 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fetchAnimeDetails(listItem, detailIntent)
             else if(type == "manga") fetchMangaDetails(listItem, detailIntent)}, 300)
     }
+    private lateinit var viewModel: SearchViewModel
+    private lateinit var searchView: SearchView
+    private lateinit var animeadapter: AnimeAdapter
+    private lateinit var loadingDialog: Dialog
+    private val detailNetworkState: MutableLiveData<NetworkState> = MutableLiveData()
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    private val service = APIService.createClient()
+    private lateinit var type: String
+
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        overridePendingTransition(0, 0)
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.nav_view)
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, 0, 0
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        navigationView.setNavigationItemSelectedListener(this)
-        viewModel = ViewModelProvider(this).get(AnimeViewModel::class.java)
+        setContentView(R.layout.search_activity_layout)
+        setSupportActionBar(search_activity_toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        search_activity_toolbar.setNavigationOnClickListener {
+            finish()
+        }
+        val spinner = findViewById<Spinner>(R.id.search_type_spinner)
+        ArrayAdapter.createFromResource(this,
+            R.array.types_array,
+            R.layout.spinner_item).also{adapter->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+        }
+        type = intent.getStringExtra("type")!!
+        viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
+        viewModel.type.postValue(type)
+        search_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                //search_swipeRefreshLayout.isRefreshing = true
+                type = search_type_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
+                viewModel.type.postValue(type)
+                initObservers()
+            }
 
-        initDialog()
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
         initViews()
         initSwipeRefresh()
+        initDialog()
         initObservers()
-    }
 
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_toolbar, menu)
-        return true
-    }
+        menuInflater.inflate(R.menu.search_activity_toolbar, menu)
+        searchView = menu?.findItem(R.id.searchView_toolbar)?.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if(id == R.id.action_search){
-            val intent = Intent(this@MainActivity, SearchActivity::class.java)
-            intent.putExtra("type", viewModel.type.value)
-            startActivity(intent)
-            return false
-        }
-        return true
-    }
+            override fun onQueryTextChange(newText: String): Boolean {
+                return false
+            }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if(id==R.id.nav_top_anime) {
-            if(viewModel.type.value!="anime") {
-                viewModel.type.postValue("anime")
+            override fun onQueryTextSubmit(query: String): Boolean {
+                //search_swipeRefreshLayout.isRefreshing = true
+                viewModel.searchKey.postValue(query)
                 initObservers()
+                return false
+            }
+
+        })
+        searchView.setOnQueryTextFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                searchView.isIconified = true;
             }
         }
-        if(id==R.id.nav_top_manga){
-            if(viewModel.type.value!="manga") {
-                viewModel.type.postValue("manga")
-                initObservers()
-            }
-        }
-        drawerLayout.closeDrawers()
         return true
     }
-
-
     @ExperimentalStdlibApi
-    private fun initViews(){
+    fun initViews(){
         animeadapter = AnimeAdapter(itemOnClick)
-        rv_anime.apply{
+        rv_anime_search.apply{
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
                 if(this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    GridLayoutManager(this@MainActivity, 2)
+                    GridLayoutManager(this@SearchActivity, 2)
                 } else {
 
-                    GridLayoutManager(this@MainActivity, 4)
+                    GridLayoutManager(this@SearchActivity, 4)
                 }
             if(adapter == null){
                 adapter = animeadapter
             }
-            setOnClickListener { Toast.makeText(this@MainActivity, viewModel.animeList.value?.get(2)?.title.toString(), Toast.LENGTH_SHORT).show()  }
+            setOnClickListener { Toast.makeText(this@SearchActivity, viewModel.animeList.value?.get(2)?.title.toString(), Toast.LENGTH_SHORT).show()  }
         }
-        viewModel.animeList.observe(this@MainActivity, Observer<PagedList<AnimeManga>>{animeadapter.submitList(it)})
+        viewModel.animeList.observe(this@SearchActivity, Observer<PagedList<AnimeManga>>{animeadapter.submitList(it)})
 
 
     }
+
     private fun initSwipeRefresh(){
-        swipeRefreshLayout.setOnRefreshListener {viewModel.refresh()}
+        search_swipeRefreshLayout.setOnRefreshListener {viewModel.refresh()}
     }
 
+    private fun initObservers(){
+        search_swipeRefreshLayout.isRefreshing = false
+        Handler().postDelayed({
+            viewModel.nState.observe(this, EventObserver{networkState->
+                search_swipeRefreshLayout.isRefreshing = networkState.status == NetworkState.LOADING.status
+            })
+            viewModel.nState.observe(this@SearchActivity, EventObserver{networkState -> if(networkState.status != NetworkState.LOADING.status && networkState.status!=NetworkState.LOADED.status)
+                Toast.makeText(this@SearchActivity, "${networkState.message}. Swipe-up to try again", Toast.LENGTH_SHORT).show()
+                search_swipeRefreshLayout.isRefreshing = false
+            })
+            viewModel.nState.observe(this@SearchActivity, EventObserver{animeadapter.setNetworkState(it)})
+        }, 100)
+
+
+    }
     @ExperimentalStdlibApi
     private fun fetchAnimeDetails(listItem: AnimeManga?, intent:Intent){
 
@@ -169,11 +190,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun fetchCharacters(malId: Int?, type: String?, intent: Intent){
-        val type = viewModel.type.value
         var request = ""
-        if(type == "anime")
-            request = "characters_staff"
-        else request = "characters"
+        request = if(type == "anime")
+            "characters_staff"
+        else "characters"
         compositeDisposable.add(service.getCharactersDetail(malId, type, request)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
@@ -211,7 +231,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.putExtra("englishtitle", response?.englishtitle)
         intent.putExtra("genres", response?.genres)
         intent.putExtra("rank", response?.rank.toString())
-        fetchCharacters(listItem?.malId, listItem?.type, intent)
+        fetchCharacters(listItem?.malId, type, intent)
     }
 
     @ExperimentalStdlibApi
@@ -242,7 +262,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.putExtra("englishtitle", response?.englishtitle)
         intent.putExtra("genres", response?.genres)
         intent.putExtra("rank", response?.rank.toString())
-        fetchCharacters(listItem?.malId, listItem?.type, intent)
+        fetchCharacters(listItem?.malId, type, intent)
     }
 
     private fun onCharacterSuccess(response: Characters?, intent: Intent){
@@ -256,27 +276,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         detailNetworkState.postValue(NetworkState.error(t.message))
     }
 
-    private fun initObservers(){
-        Handler().postDelayed({
-            viewModel.nState.observe(this, EventObserver{networkState->
-                swipeRefreshLayout.isRefreshing = networkState.status == NetworkState.LOADING.status
-            })
-            viewModel.nState.observe(this@MainActivity, EventObserver{networkState -> if(networkState.status != NetworkState.LOADING.status && networkState.status!=NetworkState.LOADED.status)
-                Toast.makeText(this@MainActivity, "${networkState.message}. Swipe-up to try again", Toast.LENGTH_SHORT).show()
-                swipeRefreshLayout.isRefreshing = false
-            })
-            viewModel.nState.observe(this@MainActivity, EventObserver{animeadapter.setNetworkState(it)})
-        }, 100)
-
-
-    }
-
     private fun initDialog(){
-        loadingDialog = Dialog(this@MainActivity)
+        loadingDialog = Dialog(this@SearchActivity)
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
         loadingDialog.setContentView(R.layout.loadingdialoglayout)
-        detailNetworkState.observe(this@MainActivity, Observer{
+        detailNetworkState.observe(this@SearchActivity, Observer{
             if(detailNetworkState.value?.status == NetworkState.LOADING.status)
                 loadingDialog.show()
             else
@@ -284,6 +289,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
-
-
 }
+
+
+
