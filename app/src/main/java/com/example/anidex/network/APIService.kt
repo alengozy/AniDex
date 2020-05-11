@@ -1,7 +1,5 @@
 package com.example.anidex.network
-import com.example.anidex.model.Anime
-import com.example.anidex.model.AnimeMangaDetail
-import com.example.anidex.model.Top
+import com.example.anidex.model.*
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Observable
 import retrofit2.Retrofit
@@ -15,14 +13,31 @@ import retrofit2.http.Query
 interface APIService {
 
 
-    @GET("/v3/top/anime/{page}/{param}")
-    fun getSeries(@Path("page") page: Int?, @Path("param") param: String? = ""): Observable<Top>?
+    @GET("/v3/top/{type}/{page}/{param}")
+    fun getSeries(@Path("page") page: Int?,
+                  @Path("type") type: String?,
+                  @Path("param") param: String?=""): Observable<Top>?
 
-    @GET("/v3/anime/{id}/{request}")
-    fun getAnimeDetail(@Path("id") id: Int?, @Path("request") request: String? = ""): Observable<AnimeMangaDetail?>?
+    @GET("/v3/{type}/{id}/{request}")
+    fun getMangaDetail(@Path("id") id: Int?,
+                            @Path("type") type: String?,
+                            @Path("request") request: String?): Observable<MangaDetail?>?
 
-    @GET("/v3/search/anime")
-    fun searchAnime(@Query("q") q: String?, @Query("page") page: Int?): Observable<List<Anime>>?
+    @GET("/v3/{type}/{id}/{request}")
+    fun getAnimeDetail(@Path("id") id: Int?,
+                       @Path("type") type: String?,
+                       @Path("request") request: String?): Observable<AnimeDetail?>?
+
+    @GET("/v3/{type}/{id}/{request}")
+    fun getCharactersDetail(@Path("id") id: Int?,
+                            @Path("type") type: String?,
+                            @Path("request") request: String?): Observable<Characters>?
+
+
+    @GET("/v3/search/{type}")
+    fun searchAnime(@Path("type") type: String?,
+                    @Query("q") q: String?,
+                    @Query("page") page: Int?): Observable<SearchResult>?
 
     companion object {
         fun createClient(): APIService{

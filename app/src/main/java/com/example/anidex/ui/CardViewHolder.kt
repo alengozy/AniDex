@@ -1,13 +1,10 @@
 package com.example.anidex.ui
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.RecyclerView
@@ -18,11 +15,9 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.anidex.MainActivity
 import com.example.anidex.R
-import com.example.anidex.model.Anime
+import com.example.anidex.model.AnimeManga
 import kotlinx.android.synthetic.main.card_layout.view.*
-import java.util.*
 
 fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
     itemView.setOnClickListener {
@@ -31,7 +26,7 @@ fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, t
     return this
 }
 class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
-    fun bind(data: Anime?){
+    fun bind(data: AnimeManga?){
 
             Glide
                 .with(itemView.context)
@@ -54,7 +49,21 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
                 })
                 .fitCenter()
                 .into(itemView.thumbnail)
-            val epsstring = data?.episodes.toString() + "eps"
+        var epsstring=""
+        var episodecount = 0
+        if(data?.type!="Manga"){
+            episodecount = data?.episodes!!
+            epsstring = if(episodecount!=0)
+                episodecount.toString() + "eps"
+            else "Ongoing"
+        }
+        else
+        {
+            episodecount = data.volumes
+            epsstring = if(episodecount!=0)
+                episodecount.toString() + "vols"
+            else "Ongoing"
+        }
             itemView.episode_ct.text = epsstring
             itemView.title.text = data?.title
             itemView.user_rating.text = data?.score.toString()

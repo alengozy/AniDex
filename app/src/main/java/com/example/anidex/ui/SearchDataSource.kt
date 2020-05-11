@@ -2,7 +2,8 @@ package com.example.anidex.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
-import com.example.anidex.model.Anime
+import com.example.anidex.Event
+import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
 
@@ -13,52 +14,57 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 
-class SearchDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable, private val searchKey: String, private var page: Int): PageKeyedDataSource<Int, Anime>(){
-    val networkState = MutableLiveData<NetworkState>()
-    val initialLoad = MutableLiveData<NetworkState>()
+class SearchDataSource(private val service: APIService,
+                       private val compositeDisposable: CompositeDisposable,
+                       private val searchKey: String?,
+                       private val type: String?,
+                       private var page: Int): PageKeyedDataSource<Int, AnimeManga>(){
+    val networkState = MutableLiveData<Event<NetworkState>>()
+    val initialLoad = MutableLiveData<Event<NetworkState>>()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
-        callback: LoadInitialCallback<Int, Anime>
+        callback: LoadInitialCallback<Int, AnimeManga>
 
     ) {
-        networkState.postValue(NetworkState.LOADING)
-        initialLoad.postValue(NetworkState.LOADING)
+
+        networkState.postValue(Event(NetworkState.LOADING))
+        initialLoad.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
-            service.getSeries(page)
+            service.searchAnime(type,searchKey, page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
-                        anime ->
-                    initialLoad.postValue(NetworkState.LOADED)
-                    networkState.postValue(NetworkState.LOADED)
-                    anime.top?.let { callback.onResult(it, null, page++) }
+                        response ->
+                    initialLoad.postValue(Event(NetworkState.LOADED))
+                    networkState.postValue(Event(NetworkState.LOADED))
+                    response.results.let { callback.onResult(it, null, page++) }
                 }, {
                         throwable ->
-                    networkState.postValue(NetworkState.error(throwable.message))
+                    networkState.postValue(Event(NetworkState.error(throwable.message)))
                 }))
     }
-    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Anime>) {
-        networkState.postValue(NetworkState.LOADING)
+    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
+        networkState.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
-            service.getSeries(page)
+            service.searchAnime(type, searchKey, page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
                     {
-                            anime ->
-                        networkState.postValue(NetworkState.LOADED)
+                            response ->
+                        networkState.postValue(Event(NetworkState.LOADED))
                         val nextKey =
-                            if (params.key == anime.top?.size) null else page++
-                        anime.top?.let { callback.onResult(it, nextKey) }
+                            if (params.key == response.results.size) null else page++
+                        response.results.let { callback.onResult(it, nextKey) }
                     }, {
                             throwable ->
-                        networkState.postValue(NetworkState.error(throwable.message))
+                        networkState.postValue(Event(NetworkState.error(throwable.message)))
                     }))
 
     }
 
-    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Anime>) {
+    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
