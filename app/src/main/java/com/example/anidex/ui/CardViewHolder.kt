@@ -49,8 +49,8 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
                 })
                 .fitCenter()
                 .into(itemView.thumbnail)
-        var epsstring=""
-        var episodecount = 0
+        val epsstring: String
+        val episodecount: Int
         if(data?.type!="Manga"){
             episodecount = data?.episodes!!
             epsstring = if(episodecount!=0)
@@ -65,8 +65,8 @@ class CardViewHolder(view: View): RecyclerView.ViewHolder(view){
             else "Ongoing"
         }
             itemView.episode_ct.text = epsstring
-            itemView.title.text = data?.title
-            itemView.user_rating.text = data?.score.toString()
+            itemView.title.text = data.title
+            itemView.user_rating.text = data.score.toString()
 
 
 

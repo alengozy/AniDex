@@ -28,7 +28,6 @@ import com.example.anidex.network.APIService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.spinner_item.*
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -108,19 +107,23 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 //search_swipeRefreshLayout.isRefreshing = true
+                searchView.clearFocus()
                 viewModel.searchKey.postValue(query)
                 initObservers()
                 return false
             }
 
         })
-        searchView.setOnQueryTextFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                searchView.isIconified = true;
-            }
-        }
+
         return true
     }
+
+    override fun onResume(){
+        super.onResume();
+        search_activity_root.requestFocus();
+
+    }
+
     @ExperimentalStdlibApi
     fun initViews(){
         animeadapter = AnimeAdapter(itemOnClick)
@@ -190,8 +193,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun fetchCharacters(malId: Int?, type: String?, intent: Intent){
-        var request = ""
-        request = if(type == "anime")
+        val request: String = if(type == "anime")
             "characters_staff"
         else "characters"
         compositeDisposable.add(service.getCharactersDetail(malId, type, request)
@@ -277,6 +279,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun initDialog(){
+
         loadingDialog = Dialog(this@SearchActivity)
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)

@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group>
-        <item android:title="@string/menutop">
+    <group android:checkableBehavior="single">
+        <item android:title="@string/menuanime">
             <menu>
-                <item android:id="@+id/nav_top_anime"
-                android:title="@string/menuanime"
+                <item android:id="@+id/nav_anime_upcoming"
+                    android:title="@string/pref_upcoming"
+                    android:icon="@drawable/pref_upcoming"/>
+                <item android:id="@+id/nav_anime_airing"
+                    android:title="@string/pref_airing"
                     android:icon="@drawable/anime"/>
-                <item android:id="@+id/nav_top_manga"
-                    android:title="@string/menumanga"
-                    android:icon="@drawable/manga"/>
+                <item android:id="@+id/nav_anime_popular"
+                    android:title="@string/pref_by_popularity"
+                    android:icon="@drawable/ic_pref_popularity"/>
+                <item android:id="@+id/nav_anime_highest_rated"
+                    android:title="@string/pref_highest_rated"
+                    android:icon="@drawable/pref_rating"/>
+            </menu>
+        </item>
+    </group>
+    <group android:checkableBehavior="single">
+        <item android:title="@string/menumanga"
+              android:icon="@drawable/manga">
+            <menu>
+                <item android:id="@+id/nav_manga_highest_rated"
+                    android:title="@string/pref_highest_rated"
+                    android:icon="@drawable/pref_rating"/>
+                <item android:id="@+id/nav_manga_popular"
+                    android:title="@string/pref_by_popularity"
+                    android:icon="@drawable/ic_pref_popularity"/>
             </menu>
         </item>
     </group>

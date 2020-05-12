@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         navigationView.setNavigationItemSelectedListener(this)
         viewModel = ViewModelProvider(this).get(AnimeViewModel::class.java)
-
         initDialog()
         initViews()
         initSwipeRefresh()
@@ -99,18 +98,68 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if(id==R.id.nav_top_anime) {
-            if(viewModel.type.value!="anime") {
+        if(id==R.id.nav_anime_airing) {
+            if(viewModel.type.value!="anime"){
+                main_toolbar_sub.text=getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
-                initObservers()
+            }
+            if(viewModel.request.value!="airing") {
+                viewModel.request.postValue("airing")
+                main_toolbar_text.text=getString(R.string.pref_airing)
+
             }
         }
-        if(id==R.id.nav_top_manga){
-            if(viewModel.type.value!="manga") {
+        if(id==R.id.nav_anime_upcoming) {
+            if(viewModel.type.value!="anime"){
+                main_toolbar_sub.text=getString(R.string.menuanime)
+                viewModel.type.postValue("anime")
+            }
+            if(viewModel.request.value!="upcoming") {
+                viewModel.request.postValue("upcoming")
+                main_toolbar_text.text=getString(R.string.pref_upcoming)
+            }
+
+        }
+        if(id==R.id.nav_anime_popular) {
+            if(viewModel.type.value!="anime"){
+                main_toolbar_sub.text=getString(R.string.menuanime)
+                viewModel.type.postValue("anime")
+            }
+            if(viewModel.request.value!="airing") {
+                viewModel.request.postValue("bypopularity")
+                main_toolbar_text.text=getString(R.string.pref_by_popularity)
+            }
+        }
+        if(id==R.id.nav_anime_highest_rated) {
+            if(viewModel.type.value!="anime"){
+                main_toolbar_sub.text=getString(R.string.menuanime)
+                viewModel.type.postValue("anime")
+            }
+            if(viewModel.request.value!="") {
+                viewModel.request.postValue("")
+                main_toolbar_text.text=getString(R.string.pref_highest_rated)
+            }
+        }
+        if(id==R.id.nav_manga_popular) {
+            if(viewModel.type.value!="manga"){
+                main_toolbar_sub.text=getString(R.string.menumanga)
                 viewModel.type.postValue("manga")
-                initObservers()
+            }
+            if(viewModel.request.value!="bypopularity") {
+                viewModel.request.postValue("bypopularity")
             }
         }
+        if(id==R.id.nav_manga_highest_rated){
+            if(viewModel.type.value!="manga"){
+                main_toolbar_sub.text=getString(R.string.menumanga)
+                viewModel.type.postValue("manga")
+            }
+            if(viewModel.request.value!="") {
+                viewModel.request.postValue("")
+            }
+        }
+        item.isChecked = true
+        initObservers()
         drawerLayout.closeDrawers()
         return true
     }
@@ -169,11 +218,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun fetchCharacters(malId: Int?, type: String?, intent: Intent){
-        val type = viewModel.type.value
-        var request = ""
-        if(type == "anime")
-            request = "characters_staff"
-        else request = "characters"
+        val request: String = if(type == "anime")
+            "characters_staff"
+        else "characters"
         compositeDisposable.add(service.getCharactersDetail(malId, type, request)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
@@ -211,7 +258,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.putExtra("englishtitle", response?.englishtitle)
         intent.putExtra("genres", response?.genres)
         intent.putExtra("rank", response?.rank.toString())
-        fetchCharacters(listItem?.malId, listItem?.type, intent)
+        fetchCharacters(listItem?.malId, viewModel.type.value, intent)
     }
 
     @ExperimentalStdlibApi
@@ -242,7 +289,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.putExtra("englishtitle", response?.englishtitle)
         intent.putExtra("genres", response?.genres)
         intent.putExtra("rank", response?.rank.toString())
-        fetchCharacters(listItem?.malId, listItem?.type, intent)
+        fetchCharacters(listItem?.malId, viewModel.type.value, intent)
     }
 
     private fun onCharacterSuccess(response: Characters?, intent: Intent){
@@ -284,6 +331,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
-
 
 }

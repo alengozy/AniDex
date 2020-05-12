@@ -30,6 +30,9 @@
     <string name="menuanime">Anime</string>
     <string name="menumanga">Manga</string>
     <string name="menutop">Top</string>
+    <string name="filter">Filter</string>
+    <string name="airing_filter">Airing</string>
+    <string name="pref_upcoming">Upcoming</string>
     <string-array name="types_array">
         <item>Anime</item>
         <item>Manga</item>
