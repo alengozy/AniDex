@@ -14,13 +14,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 
-
-
-class AnimeDataSource(private val service: APIService,
-                      private val compositeDisposable: CompositeDisposable,
-                      private val type: String?,
-                      private var page: Int,
-                      private var request: String?): PageKeyedDataSource<Int, AnimeManga>(){
+class AnimeDataSource(
+    private val service: APIService,
+    private val compositeDisposable: CompositeDisposable,
+    private val type: String?,
+    private var page: Int,
+    private var request: String?
+) : PageKeyedDataSource<Int, AnimeManga>() {
     var networkState = MutableLiveData<Event<NetworkState>>()
     var initialLoad = MutableLiveData<Event<NetworkState>>()
 
@@ -35,16 +35,18 @@ class AnimeDataSource(private val service: APIService,
             service.getSeries(page, type, request)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
-                ?.subscribe({
-                        anime ->
-                        anime.top?.let { callback.onResult(it, null, page++)
+                ?.subscribe({ anime ->
+                    anime.top?.let {
+                        callback.onResult(it, null, page++)
                         initialLoad.postValue(Event(NetworkState.LOADED))
-                        networkState.postValue(Event(NetworkState.LOADED)) }
-                }, {
-                    throwable ->
+                        networkState.postValue(Event(NetworkState.LOADED))
+                    }
+                }, { throwable ->
                     networkState.postValue(Event(NetworkState.error(throwable.message)))
-                }))
+                })
+        )
     }
+
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         networkState.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
@@ -52,17 +54,18 @@ class AnimeDataSource(private val service: APIService,
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
-                    {
-                            anime ->
+                    { anime ->
 
                         val nextKey =
                             if (params.key == anime.top?.size) null else page++
-                        anime.top?.let { callback.onResult(it, nextKey)
-                            networkState.postValue(Event(NetworkState.LOADED)) }
-                    }, {
-                            throwable ->
+                        anime.top?.let {
+                            callback.onResult(it, nextKey)
+                            networkState.postValue(Event(NetworkState.LOADED))
+                        }
+                    }, { throwable ->
                         networkState.postValue(Event(NetworkState.error(throwable.message)))
-                    }))
+                    })
+        )
 
     }
 

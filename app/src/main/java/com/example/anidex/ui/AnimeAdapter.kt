@@ -8,7 +8,8 @@ import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.model.NetworkState.Companion.LOADED
 
-class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit): PagedListAdapter<AnimeManga, RecyclerView.ViewHolder>(AniDiffUtil()){
+class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit) :
+    PagedListAdapter<AnimeManga, RecyclerView.ViewHolder>(AniDiffUtil()) {
     private var networkState: NetworkState? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val viewCVH = CardViewHolder.createHolder(parent)
@@ -19,16 +20,17 @@ class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit): PagedListAd
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        if(holder is CardViewHolder)
+        if (holder is CardViewHolder)
             holder.bind(getItem(position))
 
     }
 
 
-    private fun loadedExtraRow(): Boolean{
-        return networkState!=null && networkState!=LOADED
+    private fun loadedExtraRow(): Boolean {
+        return networkState != null && networkState != LOADED
 
     }
+
     fun setNetworkState(newNetworkState: NetworkState?) {
         if (currentList != null) {
             if (currentList!!.size != 0) {

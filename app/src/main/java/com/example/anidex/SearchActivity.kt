@@ -41,9 +41,10 @@ class SearchActivity : AppCompatActivity() {
         val detailIntent = Intent(this, DetailsActivity::class.java)
         Handler().postDelayed({
             val type = viewModel.type.value
-            if( type == "anime")
+            if (type == "anime")
                 fetchAnimeDetails(listItem, detailIntent)
-            else if(type == "manga") fetchMangaDetails(listItem, detailIntent)}, 300)
+            else if (type == "manga") fetchMangaDetails(listItem, detailIntent)
+        }, 300)
     }
     private lateinit var viewModel: SearchViewModel
     private lateinit var searchView: SearchView
@@ -65,9 +66,11 @@ class SearchActivity : AppCompatActivity() {
             finish()
         }
         val spinner = findViewById<Spinner>(R.id.search_type_spinner)
-        ArrayAdapter.createFromResource(this,
+        ArrayAdapter.createFromResource(
+            this,
             R.array.types_array,
-            R.layout.spinner_item).also{adapter->
+            R.layout.spinner_item
+        ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter
         }
@@ -118,95 +121,125 @@ class SearchActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onResume(){
+    override fun onResume() {
         super.onResume();
         search_activity_root.requestFocus();
 
     }
 
     @ExperimentalStdlibApi
-    fun initViews(){
+    fun initViews() {
         animeadapter = AnimeAdapter(itemOnClick)
-        rv_anime_search.apply{
+        rv_anime_search.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
-                if(this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                     GridLayoutManager(this@SearchActivity, 2)
                 } else {
 
                     GridLayoutManager(this@SearchActivity, 4)
                 }
-            if(adapter == null){
+            if (adapter == null) {
                 adapter = animeadapter
             }
-            setOnClickListener { Toast.makeText(this@SearchActivity, viewModel.animeList.value?.get(2)?.title.toString(), Toast.LENGTH_SHORT).show()  }
+            setOnClickListener {
+                Toast.makeText(
+                    this@SearchActivity,
+                    viewModel.animeList.value?.get(2)?.title.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-        viewModel.animeList.observe(this@SearchActivity, Observer<PagedList<AnimeManga>>{animeadapter.submitList(it)})
+        viewModel.animeList.observe(
+            this@SearchActivity,
+            Observer<PagedList<AnimeManga>> { animeadapter.submitList(it) })
 
 
     }
 
-    private fun initSwipeRefresh(){
-        search_swipeRefreshLayout.setOnRefreshListener {viewModel.refresh()}
+    private fun initSwipeRefresh() {
+        search_swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         search_swipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
-            viewModel.nState.observe(this, EventObserver{networkState->
-                search_swipeRefreshLayout.isRefreshing = networkState.status == NetworkState.LOADING.status
+            viewModel.nState.observe(this, EventObserver { networkState ->
+                search_swipeRefreshLayout.isRefreshing =
+                    networkState.status == NetworkState.LOADING.status
             })
-            viewModel.nState.observe(this@SearchActivity, EventObserver{networkState -> if(networkState.status != NetworkState.LOADING.status && networkState.status!=NetworkState.LOADED.status)
-                Toast.makeText(this@SearchActivity, "${networkState.message}. Swipe-up to try again", Toast.LENGTH_SHORT).show()
+            viewModel.nState.observe(this@SearchActivity, EventObserver { networkState ->
+                if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
+                    Toast.makeText(
+                        this@SearchActivity,
+                        "${networkState.message}. Swipe-up to try again",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 search_swipeRefreshLayout.isRefreshing = false
             })
-            viewModel.nState.observe(this@SearchActivity, EventObserver{animeadapter.setNetworkState(it)})
+            viewModel.nState.observe(
+                this@SearchActivity,
+                EventObserver { animeadapter.setNetworkState(it) })
         }, 100)
 
 
     }
+
     @ExperimentalStdlibApi
-    private fun fetchAnimeDetails(listItem: AnimeManga?, intent:Intent){
+    private fun fetchAnimeDetails(listItem: AnimeManga?, intent: Intent) {
 
 
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime","")
+        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime", "")
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onAnimeDetailsSuccess(response, listItem, intent)
-            }, { t->onError(t)
-            }))
+            ?.subscribe({ response ->
+                onAnimeDetailsSuccess(response, listItem, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
     }
 
     @ExperimentalStdlibApi
-    private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent){
+    private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent) {
 
 
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga","")
+        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga", "")
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onMangaDetailsSuccess(response, listItem, intent)
-            }, { t->onError(t)
-            }))
+            ?.subscribe({ response ->
+                onMangaDetailsSuccess(response, listItem, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
     }
 
-    private fun fetchCharacters(malId: Int?, type: String?, intent: Intent){
-        val request: String = if(type == "anime")
+    private fun fetchCharacters(malId: Int?, type: String?, intent: Intent) {
+        val request: String = if (type == "anime")
             "characters_staff"
         else "characters"
         compositeDisposable.add(service.getCharactersDetail(malId, type, request)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onCharacterSuccess(response, intent)
-            }, { t->onError(t)
-            }))
+            ?.subscribe({ response ->
+                onCharacterSuccess(response, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
     }
 
 
     @ExperimentalStdlibApi
-    private fun onAnimeDetailsSuccess(response: AnimeDetail?, listItem: AnimeManga?, intent: Intent){
+    private fun onAnimeDetailsSuccess(
+        response: AnimeDetail?,
+        listItem: AnimeManga?,
+        intent: Intent
+    ) {
 
         intent.putExtra("malId", listItem?.malId)
         intent.putExtra("title", listItem?.title.toString())
@@ -215,17 +248,24 @@ class SearchActivity : AppCompatActivity() {
 
         val dates = listOf(
             OffsetDateTime.parse(response?.aired?.from),
-            if(response?.aired?.to!=null) OffsetDateTime.parse(response.aired.to)else null)
+            if (response?.aired?.to != null) OffsetDateTime.parse(response.aired.to) else null
+        )
         var month = dates[0]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
         var day = dates[0]?.dayOfMonth
         var year = dates[0]?.year
-        intent.putExtra("fromdate", String.format(resources.getString(R.string.datestring), month, day, year))
-        intent.putExtra( "status", response?.status.toString())
-        if(!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")){
+        intent.putExtra(
+            "fromdate",
+            String.format(resources.getString(R.string.datestring), month, day, year)
+        )
+        intent.putExtra("status", response?.status.toString())
+        if (!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")) {
             month = dates[1]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
             day = dates[1]?.dayOfMonth
             year = dates[1]?.year
-            intent.putExtra("enddate", String.format(resources.getString(R.string.datestring), month, day, year))
+            intent.putExtra(
+                "enddate",
+                String.format(resources.getString(R.string.datestring), month, day, year)
+            )
         }
         intent.putExtra("synopsis", response?.synopsis.toString())
         intent.putExtra("trailerlink", response?.trailer.toString())
@@ -237,7 +277,11 @@ class SearchActivity : AppCompatActivity() {
     }
 
     @ExperimentalStdlibApi
-    private fun onMangaDetailsSuccess(response: MangaDetail?, listItem: AnimeManga?, intent: Intent){
+    private fun onMangaDetailsSuccess(
+        response: MangaDetail?,
+        listItem: AnimeManga?,
+        intent: Intent
+    ) {
 
         intent.putExtra("malId", listItem?.malId)
         intent.putExtra("title", listItem?.title.toString())
@@ -246,17 +290,24 @@ class SearchActivity : AppCompatActivity() {
 
         val dates = listOf(
             OffsetDateTime.parse(response?.aired?.from),
-            if(response?.aired?.to!=null) OffsetDateTime.parse(response.aired.to)else null)
+            if (response?.aired?.to != null) OffsetDateTime.parse(response.aired.to) else null
+        )
         var month = dates[0]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
         var day = dates[0]?.dayOfMonth
         var year = dates[0]?.year
-        intent.putExtra("fromdate", String.format(resources.getString(R.string.datestring), month, day, year))
-        intent.putExtra( "status", response?.status.toString())
-        if(!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")){
+        intent.putExtra(
+            "fromdate",
+            String.format(resources.getString(R.string.datestring), month, day, year)
+        )
+        intent.putExtra("status", response?.status.toString())
+        if (!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")) {
             month = dates[1]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
             day = dates[1]?.dayOfMonth
             year = dates[1]?.year
-            intent.putExtra("enddate", String.format(resources.getString(R.string.datestring), month, day, year))
+            intent.putExtra(
+                "enddate",
+                String.format(resources.getString(R.string.datestring), month, day, year)
+            )
         }
         intent.putExtra("synopsis", response?.synopsis.toString())
         intent.putExtra("trailerlink", response?.trailer.toString())
@@ -267,25 +318,25 @@ class SearchActivity : AppCompatActivity() {
         fetchCharacters(listItem?.malId, type, intent)
     }
 
-    private fun onCharacterSuccess(response: Characters?, intent: Intent){
+    private fun onCharacterSuccess(response: Characters?, intent: Intent) {
         intent.putExtra("characters", response)
         detailNetworkState.postValue(NetworkState.LOADED)
         startActivity(intent)
     }
 
 
-    private fun onError(t: Throwable){
+    private fun onError(t: Throwable) {
         detailNetworkState.postValue(NetworkState.error(t.message))
     }
 
-    private fun initDialog(){
+    private fun initDialog() {
 
         loadingDialog = Dialog(this@SearchActivity)
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
         loadingDialog.setContentView(R.layout.loadingdialoglayout)
-        detailNetworkState.observe(this@SearchActivity, Observer{
-            if(detailNetworkState.value?.status == NetworkState.LOADING.status)
+        detailNetworkState.observe(this@SearchActivity, Observer {
+            if (detailNetworkState.value?.status == NetworkState.LOADING.status)
                 loadingDialog.show()
             else
                 loadingDialog.dismiss()

@@ -12,13 +12,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 
-
-
-class SearchDataSource(private val service: APIService,
-                       private val compositeDisposable: CompositeDisposable,
-                       private val searchKey: String?,
-                       private val type: String?,
-                       private var page: Int): PageKeyedDataSource<Int, AnimeManga>(){
+class SearchDataSource(
+    private val service: APIService,
+    private val compositeDisposable: CompositeDisposable,
+    private val searchKey: String?,
+    private val type: String?,
+    private var page: Int
+) : PageKeyedDataSource<Int, AnimeManga>() {
     val networkState = MutableLiveData<Event<NetworkState>>()
     val initialLoad = MutableLiveData<Event<NetworkState>>()
 
@@ -31,19 +31,19 @@ class SearchDataSource(private val service: APIService,
         networkState.postValue(Event(NetworkState.LOADING))
         initialLoad.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
-            service.searchAnime(type,searchKey, page)
+            service.searchAnime(type, searchKey, page)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
-                ?.subscribe({
-                        response ->
+                ?.subscribe({ response ->
                     initialLoad.postValue(Event(NetworkState.LOADED))
                     networkState.postValue(Event(NetworkState.LOADED))
                     response.results.let { callback.onResult(it, null, page++) }
-                }, {
-                        throwable ->
+                }, { throwable ->
                     networkState.postValue(Event(NetworkState.error(throwable.message)))
-                }))
+                })
+        )
     }
+
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         networkState.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
@@ -51,16 +51,15 @@ class SearchDataSource(private val service: APIService,
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
-                    {
-                            response ->
+                    { response ->
                         networkState.postValue(Event(NetworkState.LOADED))
                         val nextKey =
                             if (params.key == response.results.size) null else page++
                         response.results.let { callback.onResult(it, nextKey) }
-                    }, {
-                            throwable ->
+                    }, { throwable ->
                         networkState.postValue(Event(NetworkState.error(throwable.message)))
-                    }))
+                    })
+        )
 
     }
 

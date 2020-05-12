@@ -13,7 +13,7 @@ import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class SearchViewModel: ViewModel(){
+class SearchViewModel : ViewModel() {
 
     var animeList: LiveData<PagedList<AnimeManga>>
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
@@ -22,7 +22,8 @@ class SearchViewModel: ViewModel(){
     val searchKey: MutableLiveData<String> = MutableLiveData()
     var type: MutableLiveData<String> = MutableLiveData("")
     private val service: APIService = APIService.createClient()
-    private var sourceFactory: SearchDataSourceFactory = SearchDataSourceFactory(service, compositeDisposable, searchKey.value, type.value)
+    private var sourceFactory: SearchDataSourceFactory =
+        SearchDataSourceFactory(service, compositeDisposable, searchKey.value, type.value)
 
     init {
         val config = PagedList.Config.Builder()
@@ -31,10 +32,17 @@ class SearchViewModel: ViewModel(){
             .setEnablePlaceholders(false)
             .build()
         animeList = Transformations.switchMap(DoubleTrigger(searchKey, type)) { data ->
-            sourceFactory = SearchDataSourceFactory(APIService.createClient(), compositeDisposable, data.first, data.second)
-            nState = Transformations.switchMap(sourceFactory.mutableLiveData){it.networkState} as MutableLiveData<Event<NetworkState>>
+            sourceFactory = SearchDataSourceFactory(
+                APIService.createClient(),
+                compositeDisposable,
+                data.first,
+                data.second
+            )
+            nState =
+                Transformations.switchMap(sourceFactory.mutableLiveData) { it.networkState } as MutableLiveData<Event<NetworkState>>
             LivePagedListBuilder(sourceFactory, config)
-                .build() }
+                .build()
+        }
     }
 
     override fun onCleared() {
@@ -42,13 +50,10 @@ class SearchViewModel: ViewModel(){
         compositeDisposable.dispose()
     }
 
-    fun refresh(){
+    fun refresh() {
         sourceFactory.mutableLiveData.value?.invalidate()
 
     }
-
-
-
 
 
 }

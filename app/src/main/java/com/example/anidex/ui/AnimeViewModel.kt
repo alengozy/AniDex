@@ -13,7 +13,7 @@ import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class AnimeViewModel: ViewModel(){
+class AnimeViewModel : ViewModel() {
 
 
     var animeList: LiveData<PagedList<AnimeManga>>
@@ -23,16 +23,20 @@ class AnimeViewModel: ViewModel(){
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
     var request: MutableLiveData<String> = MutableLiveData("")
     private val service: APIService = APIService.createClient()
-    private var sourceFactory: GetSeriesDataSourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
+    private var sourceFactory: GetSeriesDataSourceFactory =
+        GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
+
     init {
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
             .setInitialLoadSizeHint(50)
             .setEnablePlaceholders(false)
             .build()
-        animeList = Transformations.switchMap(DoubleTrigger(type, request)){ input->
-            sourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
-            nState = Transformations.switchMap(sourceFactory.mutableLiveData){it.networkState} as MutableLiveData<Event<NetworkState>>
+        animeList = Transformations.switchMap(DoubleTrigger(type, request)) { input ->
+            sourceFactory =
+                GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
+            nState =
+                Transformations.switchMap(sourceFactory.mutableLiveData) { it.networkState } as MutableLiveData<Event<NetworkState>>
             LivePagedListBuilder(sourceFactory, config).build()
         }
     }
@@ -43,12 +47,10 @@ class AnimeViewModel: ViewModel(){
 
     }
 
-    fun refresh(){
+    fun refresh() {
         sourceFactory.mutableLiveData.value?.invalidate()
 
     }
-
-
 
 
 }

@@ -34,7 +34,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var  toolbar: Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var viewModel: AnimeViewModel
@@ -53,10 +53,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val detailIntent = Intent(this, DetailsActivity::class.java)
         Handler().postDelayed({
             val type = viewModel.type.value
-            if( type == "anime")
+            if (type == "anime")
                 fetchAnimeDetails(listItem, detailIntent)
-            else if(type == "manga") fetchMangaDetails(listItem, detailIntent)}, 300)
+            else if (type == "manga") fetchMangaDetails(listItem, detailIntent)
+        }, 300)
     }
+
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +89,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if(id == R.id.action_search){
+        if (id == R.id.action_search) {
             val intent = Intent(this@MainActivity, SearchActivity::class.java)
             intent.putExtra("type", viewModel.type.value)
             startActivity(intent)
@@ -98,63 +100,63 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if(id==R.id.nav_anime_airing) {
-            if(viewModel.type.value!="anime"){
-                main_toolbar_sub.text=getString(R.string.menuanime)
+        if (id == R.id.nav_anime_airing) {
+            if (viewModel.type.value != "anime") {
+                main_toolbar_sub.text = getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
             }
-            if(viewModel.request.value!="airing") {
+            if (viewModel.request.value != "airing") {
                 viewModel.request.postValue("airing")
-                main_toolbar_text.text=getString(R.string.pref_airing)
+                main_toolbar_text.text = getString(R.string.pref_airing)
 
             }
         }
-        if(id==R.id.nav_anime_upcoming) {
-            if(viewModel.type.value!="anime"){
-                main_toolbar_sub.text=getString(R.string.menuanime)
+        if (id == R.id.nav_anime_upcoming) {
+            if (viewModel.type.value != "anime") {
+                main_toolbar_sub.text = getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
             }
-            if(viewModel.request.value!="upcoming") {
+            if (viewModel.request.value != "upcoming") {
                 viewModel.request.postValue("upcoming")
-                main_toolbar_text.text=getString(R.string.pref_upcoming)
+                main_toolbar_text.text = getString(R.string.pref_upcoming)
             }
 
         }
-        if(id==R.id.nav_anime_popular) {
-            if(viewModel.type.value!="anime"){
-                main_toolbar_sub.text=getString(R.string.menuanime)
+        if (id == R.id.nav_anime_popular) {
+            if (viewModel.type.value != "anime") {
+                main_toolbar_sub.text = getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
             }
-            if(viewModel.request.value!="airing") {
+            if (viewModel.request.value != "airing") {
                 viewModel.request.postValue("bypopularity")
-                main_toolbar_text.text=getString(R.string.pref_by_popularity)
+                main_toolbar_text.text = getString(R.string.pref_by_popularity)
             }
         }
-        if(id==R.id.nav_anime_highest_rated) {
-            if(viewModel.type.value!="anime"){
-                main_toolbar_sub.text=getString(R.string.menuanime)
+        if (id == R.id.nav_anime_highest_rated) {
+            if (viewModel.type.value != "anime") {
+                main_toolbar_sub.text = getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
             }
-            if(viewModel.request.value!="") {
+            if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
-                main_toolbar_text.text=getString(R.string.pref_highest_rated)
+                main_toolbar_text.text = getString(R.string.pref_highest_rated)
             }
         }
-        if(id==R.id.nav_manga_popular) {
-            if(viewModel.type.value!="manga"){
-                main_toolbar_sub.text=getString(R.string.menumanga)
+        if (id == R.id.nav_manga_popular) {
+            if (viewModel.type.value != "manga") {
+                main_toolbar_sub.text = getString(R.string.menumanga)
                 viewModel.type.postValue("manga")
             }
-            if(viewModel.request.value!="bypopularity") {
+            if (viewModel.request.value != "bypopularity") {
                 viewModel.request.postValue("bypopularity")
             }
         }
-        if(id==R.id.nav_manga_highest_rated){
-            if(viewModel.type.value!="manga"){
-                main_toolbar_sub.text=getString(R.string.menumanga)
+        if (id == R.id.nav_manga_highest_rated) {
+            if (viewModel.type.value != "manga") {
+                main_toolbar_sub.text = getString(R.string.menumanga)
                 viewModel.type.postValue("manga")
             }
-            if(viewModel.request.value!="") {
+            if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
             }
         }
@@ -166,72 +168,94 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     @ExperimentalStdlibApi
-    private fun initViews(){
+    private fun initViews() {
         animeadapter = AnimeAdapter(itemOnClick)
-        rv_anime.apply{
+        rv_anime.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
-                if(this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                     GridLayoutManager(this@MainActivity, 2)
                 } else {
 
                     GridLayoutManager(this@MainActivity, 4)
                 }
-            if(adapter == null){
+            if (adapter == null) {
                 adapter = animeadapter
             }
-            setOnClickListener { Toast.makeText(this@MainActivity, viewModel.animeList.value?.get(2)?.title.toString(), Toast.LENGTH_SHORT).show()  }
+            setOnClickListener {
+                Toast.makeText(
+                    this@MainActivity,
+                    viewModel.animeList.value?.get(2)?.title.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-        viewModel.animeList.observe(this@MainActivity, Observer<PagedList<AnimeManga>>{animeadapter.submitList(it)})
+        viewModel.animeList.observe(
+            this@MainActivity,
+            Observer<PagedList<AnimeManga>> { animeadapter.submitList(it) })
 
 
     }
-    private fun initSwipeRefresh(){
-        swipeRefreshLayout.setOnRefreshListener {viewModel.refresh()}
-    }
 
-    @ExperimentalStdlibApi
-    private fun fetchAnimeDetails(listItem: AnimeManga?, intent:Intent){
-
-
-        detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime","")
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onAnimeDetailsSuccess(response, listItem, intent)
-            }, { t->onError(t)
-            }))
+    private fun initSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     @ExperimentalStdlibApi
-    private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent){
+    private fun fetchAnimeDetails(listItem: AnimeManga?, intent: Intent) {
 
 
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga","")
+        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime", "")
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onMangaDetailsSuccess(response, listItem, intent)
-            }, { t->onError(t)
-            }))
+            ?.subscribe({ response ->
+                onAnimeDetailsSuccess(response, listItem, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
     }
 
-    private fun fetchCharacters(malId: Int?, type: String?, intent: Intent){
-        val request: String = if(type == "anime")
+    @ExperimentalStdlibApi
+    private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent) {
+
+
+        detailNetworkState.postValue(NetworkState.LOADING)
+        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga", "")
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribeOn(Schedulers.io())
+            ?.subscribe({ response ->
+                onMangaDetailsSuccess(response, listItem, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
+    }
+
+    private fun fetchCharacters(malId: Int?, type: String?, intent: Intent) {
+        val request: String = if (type == "anime")
             "characters_staff"
         else "characters"
         compositeDisposable.add(service.getCharactersDetail(malId, type, request)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response->onCharacterSuccess(response, intent)
-            }, { t->onError(t)
-            }))
+            ?.subscribe({ response ->
+                onCharacterSuccess(response, intent)
+            }, { t ->
+                onError(t)
+            })
+        )
     }
 
 
     @ExperimentalStdlibApi
-    private fun onAnimeDetailsSuccess(response: AnimeDetail?, listItem: AnimeManga?, intent: Intent){
+    private fun onAnimeDetailsSuccess(
+        response: AnimeDetail?,
+        listItem: AnimeManga?,
+        intent: Intent
+    ) {
 
         intent.putExtra("malId", listItem?.malId)
         intent.putExtra("title", listItem?.title.toString())
@@ -240,17 +264,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val dates = listOf(
             OffsetDateTime.parse(response?.aired?.from),
-            if(response?.aired?.to!=null) OffsetDateTime.parse(response.aired.to)else null)
+            if (response?.aired?.to != null) OffsetDateTime.parse(response.aired.to) else null
+        )
         var month = dates[0]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
         var day = dates[0]?.dayOfMonth
         var year = dates[0]?.year
-        intent.putExtra("fromdate", String.format(resources.getString(R.string.datestring), month, day, year))
-        intent.putExtra( "status", response?.status.toString())
-        if(!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")){
+        intent.putExtra(
+            "fromdate",
+            String.format(resources.getString(R.string.datestring), month, day, year)
+        )
+        intent.putExtra("status", response?.status.toString())
+        if (!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")) {
             month = dates[1]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
             day = dates[1]?.dayOfMonth
             year = dates[1]?.year
-            intent.putExtra("enddate", String.format(resources.getString(R.string.datestring), month, day, year))
+            intent.putExtra(
+                "enddate",
+                String.format(resources.getString(R.string.datestring), month, day, year)
+            )
         }
         intent.putExtra("synopsis", response?.synopsis.toString())
         intent.putExtra("trailerlink", response?.trailer.toString())
@@ -262,7 +293,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     @ExperimentalStdlibApi
-    private fun onMangaDetailsSuccess(response: MangaDetail?, listItem: AnimeManga?, intent: Intent){
+    private fun onMangaDetailsSuccess(
+        response: MangaDetail?,
+        listItem: AnimeManga?,
+        intent: Intent
+    ) {
 
         intent.putExtra("malId", listItem?.malId)
         intent.putExtra("title", listItem?.title.toString())
@@ -271,17 +306,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val dates = listOf(
             OffsetDateTime.parse(response?.aired?.from),
-            if(response?.aired?.to!=null) OffsetDateTime.parse(response.aired.to)else null)
+            if (response?.aired?.to != null) OffsetDateTime.parse(response.aired.to) else null
+        )
         var month = dates[0]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
         var day = dates[0]?.dayOfMonth
         var year = dates[0]?.year
-        intent.putExtra("fromdate", String.format(resources.getString(R.string.datestring), month, day, year))
-        intent.putExtra( "status", response?.status.toString())
-        if(!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")){
+        intent.putExtra(
+            "fromdate",
+            String.format(resources.getString(R.string.datestring), month, day, year)
+        )
+        intent.putExtra("status", response?.status.toString())
+        if (!response?.status.equals("Currently Airing") && !response?.status.equals("Not yet aired")) {
             month = dates[1]?.month.toString().toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
             day = dates[1]?.dayOfMonth
             year = dates[1]?.year
-            intent.putExtra("enddate", String.format(resources.getString(R.string.datestring), month, day, year))
+            intent.putExtra(
+                "enddate",
+                String.format(resources.getString(R.string.datestring), month, day, year)
+            )
         }
         intent.putExtra("synopsis", response?.synopsis.toString())
         intent.putExtra("trailerlink", response?.trailer.toString())
@@ -292,39 +334,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fetchCharacters(listItem?.malId, viewModel.type.value, intent)
     }
 
-    private fun onCharacterSuccess(response: Characters?, intent: Intent){
+    private fun onCharacterSuccess(response: Characters?, intent: Intent) {
         intent.putExtra("characters", response)
         detailNetworkState.postValue(NetworkState.LOADED)
         startActivity(intent)
     }
 
 
-    private fun onError(t: Throwable){
+    private fun onError(t: Throwable) {
         detailNetworkState.postValue(NetworkState.error(t.message))
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         Handler().postDelayed({
-            viewModel.nState.observe(this, EventObserver{networkState->
+            viewModel.nState.observe(this, EventObserver { networkState ->
                 swipeRefreshLayout.isRefreshing = networkState.status == NetworkState.LOADING.status
             })
-            viewModel.nState.observe(this@MainActivity, EventObserver{networkState -> if(networkState.status != NetworkState.LOADING.status && networkState.status!=NetworkState.LOADED.status)
-                Toast.makeText(this@MainActivity, "${networkState.message}. Swipe-up to try again", Toast.LENGTH_SHORT).show()
+            viewModel.nState.observe(this@MainActivity, EventObserver { networkState ->
+                if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "${networkState.message}. Swipe-up to try again",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 swipeRefreshLayout.isRefreshing = false
             })
-            viewModel.nState.observe(this@MainActivity, EventObserver{animeadapter.setNetworkState(it)})
+            viewModel.nState.observe(
+                this@MainActivity,
+                EventObserver { animeadapter.setNetworkState(it) })
         }, 100)
 
 
     }
 
-    private fun initDialog(){
+    private fun initDialog() {
         loadingDialog = Dialog(this@MainActivity)
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
         loadingDialog.setContentView(R.layout.loadingdialoglayout)
-        detailNetworkState.observe(this@MainActivity, Observer{
-            if(detailNetworkState.value?.status == NetworkState.LOADING.status)
+        detailNetworkState.observe(this@MainActivity, Observer {
+            if (detailNetworkState.value?.status == NetworkState.LOADING.status)
                 loadingDialog.show()
             else
                 loadingDialog.dismiss()

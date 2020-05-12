@@ -14,7 +14,10 @@ import com.example.anidex.R
 import com.example.anidex.model.Character
 import kotlinx.android.synthetic.main.character_item.view.*
 
-class CharacterAdapter(private val dataSource: ArrayList<Character>?, private val context: Context):
+class CharacterAdapter(
+    private val dataSource: ArrayList<Character>?,
+    private val context: Context
+) :
     RecyclerView.Adapter<CharacterViewHolder>() {
     override fun getItemCount(): Int {
         return dataSource?.size ?: 0
@@ -22,7 +25,13 @@ class CharacterAdapter(private val dataSource: ArrayList<Character>?, private va
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
-        return CharacterViewHolder(LayoutInflater.from(context).inflate(R.layout.character_item, parent, false))
+        return CharacterViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.character_item,
+                parent,
+                false
+            )
+        )
     }
 
     // Binds each animal in the ArrayList to a view
@@ -41,7 +50,7 @@ class CharacterAdapter(private val dataSource: ArrayList<Character>?, private va
 
 }
 
-class CharacterViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class CharacterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val name: TextView = view.char_name
     val role: TextView = view.roletext
     val img: ImageView = view.character_img

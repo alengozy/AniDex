@@ -11,14 +11,21 @@ import com.example.anidex.model.Genre
 import kotlinx.android.synthetic.main.genreitem_layout.view.*
 import java.util.ArrayList
 
-class GenreAdapter(private val dataSource: ArrayList<Genre>?, private val context: Context): RecyclerView.Adapter<GenreViewHolder>() {
+class GenreAdapter(private val dataSource: ArrayList<Genre>?, private val context: Context) :
+    RecyclerView.Adapter<GenreViewHolder>() {
     override fun getItemCount(): Int {
         return dataSource?.size ?: 0
     }
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenreViewHolder {
-        return GenreViewHolder(LayoutInflater.from(context).inflate(R.layout.genreitem_layout, parent, false))
+        return GenreViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.genreitem_layout,
+                parent,
+                false
+            )
+        )
     }
 
     // Binds each animal in the ArrayList to a view
@@ -29,7 +36,7 @@ class GenreAdapter(private val dataSource: ArrayList<Genre>?, private val contex
 
 }
 
-class GenreViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class GenreViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     // Holds the TextView that will add each animal to
     val genrename: TextView = view.genrecardtext
 }
