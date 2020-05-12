@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import com.example.anidex.DoubleTrigger
 import com.example.anidex.Event
 import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
@@ -20,17 +21,17 @@ class AnimeViewModel: ViewModel(){
     private val pageSize = 10
     var type: MutableLiveData<String> = MutableLiveData("anime")
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
+    var request: MutableLiveData<String> = MutableLiveData("")
     private val service: APIService = APIService.createClient()
-    private var sourceFactory: GetSeriesDataSourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, type.value)
+    private var sourceFactory: GetSeriesDataSourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
     init {
-
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
             .setInitialLoadSizeHint(50)
             .setEnablePlaceholders(false)
             .build()
-        animeList = Transformations.switchMap(type){input->
-            sourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, input)
+        animeList = Transformations.switchMap(DoubleTrigger(type, request)){ input->
+            sourceFactory = GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
             nState = Transformations.switchMap(sourceFactory.mutableLiveData){it.networkState} as MutableLiveData<Event<NetworkState>>
             LivePagedListBuilder(sourceFactory, config).build()
         }
@@ -42,7 +43,7 @@ class AnimeViewModel: ViewModel(){
 
     }
 
-    open fun refresh(){
+    fun refresh(){
         sourceFactory.mutableLiveData.value?.invalidate()
 
     }

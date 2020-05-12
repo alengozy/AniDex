@@ -16,7 +16,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 
-class AnimeDataSource(private val service: APIService, private val compositeDisposable: CompositeDisposable, private val type: String?, private var page: Int): PageKeyedDataSource<Int, AnimeManga>(){
+class AnimeDataSource(private val service: APIService,
+                      private val compositeDisposable: CompositeDisposable,
+                      private val type: String?,
+                      private var page: Int,
+                      private var request: String?): PageKeyedDataSource<Int, AnimeManga>(){
     var networkState = MutableLiveData<Event<NetworkState>>()
     var initialLoad = MutableLiveData<Event<NetworkState>>()
 
@@ -28,7 +32,7 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
         networkState.postValue(Event(NetworkState.LOADING))
         initialLoad.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
-            service.getSeries(page, type)
+            service.getSeries(page, type, request)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({
@@ -44,7 +48,7 @@ class AnimeDataSource(private val service: APIService, private val compositeDisp
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         networkState.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
-            service.getSeries(page, type)
+            service.getSeries(page, type, request)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
