@@ -46,7 +46,9 @@ interface APIService {
     fun searchAnime(
         @Path("type") type: String?,
         @Query("q") q: String?,
-        @Query("page") page: Int?
+        @Query("page") page: Int?,
+        @Query("order_by") order: String?,
+        @Query("sort") sort: String?
     ): Observable<SearchResult>?
 
     companion object {

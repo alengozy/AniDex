@@ -6,8 +6,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.example.anidex.DoubleTrigger
-import com.example.anidex.Event
 import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
@@ -20,10 +18,13 @@ class SearchViewModel : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
     val searchKey: MutableLiveData<String> = MutableLiveData()
-    var type: MutableLiveData<String> = MutableLiveData("")
+    val type: MutableLiveData<String> = MutableLiveData("")
+    val order: MutableLiveData<String> = MutableLiveData("")
+    val sort: MutableLiveData<String> = MutableLiveData("")
     private val service: APIService = APIService.createClient()
     private var sourceFactory: SearchDataSourceFactory =
-        SearchDataSourceFactory(service, compositeDisposable, searchKey.value, type.value)
+        SearchDataSourceFactory(service, compositeDisposable,
+            searchKey.value, order.value, sort.value, type.value)
 
     init {
         val config = PagedList.Config.Builder()
@@ -31,12 +32,21 @@ class SearchViewModel : ViewModel() {
             .setInitialLoadSizeHint(50)
             .setEnablePlaceholders(false)
             .build()
-        animeList = Transformations.switchMap(DoubleTrigger(searchKey, type)) { data ->
+        animeList = Transformations.switchMap(
+            QuadTrigger(
+                searchKey,
+                order,
+                sort,
+                type
+            )
+        ) { data ->
             sourceFactory = SearchDataSourceFactory(
                 APIService.createClient(),
                 compositeDisposable,
                 data.first,
-                data.second
+                data.second,
+                data.third,
+                data.fourth
             )
             nState =
                 Transformations.switchMap(sourceFactory.mutableLiveData) { it.networkState } as MutableLiveData<Event<NetworkState>>

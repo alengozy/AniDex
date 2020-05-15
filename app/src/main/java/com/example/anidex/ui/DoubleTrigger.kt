@@ -1,7 +1,8 @@
-package com.example.anidex
+package com.example.anidex.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+
 
 class DoubleTrigger<A, B>(a: LiveData<A>, b: LiveData<B>) : MediatorLiveData<Pair<A?, B?>>() {
     init {

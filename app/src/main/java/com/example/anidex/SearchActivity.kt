@@ -9,11 +9,9 @@ import android.os.Handler
 import android.view.Menu
 import android.view.View
 import android.view.Window
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.widget.CompoundButtonCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +23,7 @@ import com.example.anidex.ui.SearchViewModel
 import kotlinx.android.synthetic.main.search_activity_layout.*
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
+import com.example.anidex.ui.EventObserver
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -65,33 +64,10 @@ class SearchActivity : AppCompatActivity() {
         search_activity_toolbar.setNavigationOnClickListener {
             finish()
         }
-        val spinner = findViewById<Spinner>(R.id.search_type_spinner)
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.types_array,
-            R.layout.spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinner.adapter = adapter
-        }
+
         type = intent.getStringExtra("type")!!
         viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
         viewModel.type.postValue(type)
-        search_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parentView: AdapterView<*>?,
-                selectedItemView: View?,
-                position: Int,
-                id: Long
-            ) {
-                //search_swipeRefreshLayout.isRefreshing = true
-                type = search_type_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
-                viewModel.type.postValue(type)
-                initObservers()
-            }
-
-            override fun onNothingSelected(parentView: AdapterView<*>?) {}
-        }
         initViews()
         initSwipeRefresh()
         initDialog()
@@ -129,6 +105,55 @@ class SearchActivity : AppCompatActivity() {
 
     @ExperimentalStdlibApi
     fun initViews() {
+
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.types_array,
+            R.layout.spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            search_type_spinner.adapter = adapter
+        }
+        ArrayAdapter.createFromResource(this, R.array.orderby_array, R.layout.spinner_item)
+            .also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                search_orderby_spinner.adapter = adapter
+            }
+        if(type=="anime")
+        search_type_spinner.setSelection(0)
+        else search_type_spinner.setSelection(1)
+        search_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                    //search_swipeRefreshLayout.isRefreshing = true
+                    type = search_type_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
+                    viewModel.type.postValue(type)
+                    initObservers()
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
+        search_orderby_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                if(position>0){
+                //search_swipeRefreshLayout.isRefreshing = true
+                val order = search_orderby_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
+                viewModel.order.postValue(order)
+                initObservers()
+                }
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
         animeadapter = AnimeAdapter(itemOnClick)
         rv_anime_search.apply {
             setHasFixedSize(true)
@@ -165,22 +190,28 @@ class SearchActivity : AppCompatActivity() {
     private fun initObservers() {
         search_swipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
-            viewModel.nState.observe(this, EventObserver { networkState ->
-                search_swipeRefreshLayout.isRefreshing =
-                    networkState.status == NetworkState.LOADING.status
-            })
-            viewModel.nState.observe(this@SearchActivity, EventObserver { networkState ->
-                if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
-                    Toast.makeText(
-                        this@SearchActivity,
-                        "${networkState.message}. Swipe-up to try again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                search_swipeRefreshLayout.isRefreshing = false
-            })
+            viewModel.nState.observe(this,
+                EventObserver { networkState ->
+                    search_swipeRefreshLayout.isRefreshing =
+                        networkState.status == NetworkState.LOADING.status
+                })
+            viewModel.nState.observe(this@SearchActivity,
+                EventObserver { networkState ->
+                    if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
+                        Toast.makeText(
+                            this@SearchActivity,
+                            "${networkState.message}. Swipe-up to try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    search_swipeRefreshLayout.isRefreshing = false
+                })
             viewModel.nState.observe(
                 this@SearchActivity,
-                EventObserver { animeadapter.setNetworkState(it) })
+                EventObserver {
+                    animeadapter.setNetworkState(
+                        it
+                    )
+                })
         }, 100)
 
 
@@ -191,14 +222,15 @@ class SearchActivity : AppCompatActivity() {
 
 
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime", "")
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onAnimeDetailsSuccess(response, listItem, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getAnimeDetail(listItem?.malId, "anime", "")
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onAnimeDetailsSuccess(response, listItem, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
@@ -207,14 +239,15 @@ class SearchActivity : AppCompatActivity() {
 
 
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga", "")
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onMangaDetailsSuccess(response, listItem, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getMangaDetail(listItem?.malId, "manga", "")
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onMangaDetailsSuccess(response, listItem, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
@@ -222,14 +255,15 @@ class SearchActivity : AppCompatActivity() {
         val request: String = if (type == "anime")
             "characters_staff"
         else "characters"
-        compositeDisposable.add(service.getCharactersDetail(malId, type, request)
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onCharacterSuccess(response, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getCharactersDetail(malId, type, request)
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onCharacterSuccess(response, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 

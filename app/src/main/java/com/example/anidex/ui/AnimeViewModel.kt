@@ -6,8 +6,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.example.anidex.DoubleTrigger
-import com.example.anidex.Event
 import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
@@ -32,7 +30,12 @@ class AnimeViewModel : ViewModel() {
             .setInitialLoadSizeHint(50)
             .setEnablePlaceholders(false)
             .build()
-        animeList = Transformations.switchMap(DoubleTrigger(type, request)) { input ->
+        animeList = Transformations.switchMap(
+            DoubleTrigger(
+                type,
+                request
+            )
+        ) { input ->
             sourceFactory =
                 GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
             nState =

@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 main_toolbar_sub.text = getString(R.string.menuanime)
                 viewModel.type.postValue("anime")
             }
-            if (viewModel.request.value != "airing") {
+            if (viewModel.request.value != "bypopularity") {
                 viewModel.request.postValue("bypopularity")
                 main_toolbar_text.text = getString(R.string.pref_by_popularity)
             }
@@ -347,21 +347,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun initObservers() {
         Handler().postDelayed({
-            viewModel.nState.observe(this, EventObserver { networkState ->
-                swipeRefreshLayout.isRefreshing = networkState.status == NetworkState.LOADING.status
-            })
-            viewModel.nState.observe(this@MainActivity, EventObserver { networkState ->
-                if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "${networkState.message}. Swipe-up to try again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                swipeRefreshLayout.isRefreshing = false
-            })
+            viewModel.nState.observe(this,
+                EventObserver { networkState ->
+                    swipeRefreshLayout.isRefreshing =
+                        networkState.status == NetworkState.LOADING.status
+                })
+            viewModel.nState.observe(this@MainActivity,
+                EventObserver { networkState ->
+                    if (networkState.status != NetworkState.LOADING.status && networkState.status != NetworkState.LOADED.status)
+                        Toast.makeText(
+                            this@MainActivity,
+                            "${networkState.message}. Swipe-up to try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    swipeRefreshLayout.isRefreshing = false
+                })
             viewModel.nState.observe(
                 this@MainActivity,
-                EventObserver { animeadapter.setNetworkState(it) })
+                EventObserver {
+                    animeadapter.setNetworkState(
+                        it
+                    )
+                })
         }, 100)
 
 

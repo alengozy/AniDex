@@ -15,6 +15,7 @@ class GenreAdapter(private val dataSource: ArrayList<Genre>?, private val contex
     RecyclerView.Adapter<GenreViewHolder>() {
     override fun getItemCount(): Int {
         return dataSource?.size ?: 0
+
     }
 
     // Inflates the item views
@@ -26,6 +27,7 @@ class GenreAdapter(private val dataSource: ArrayList<Genre>?, private val contex
                 false
             )
         )
+
     }
 
     // Binds each animal in the ArrayList to a view

@@ -1,10 +1,8 @@
 package com.example.anidex.ui
 
 
-import android.net.Network
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
-import com.example.anidex.Event
 import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
@@ -38,11 +36,23 @@ class AnimeDataSource(
                 ?.subscribe({ anime ->
                     anime.top?.let {
                         callback.onResult(it, null, page++)
-                        initialLoad.postValue(Event(NetworkState.LOADED))
-                        networkState.postValue(Event(NetworkState.LOADED))
+                        initialLoad.postValue(
+                            Event(
+                                NetworkState.LOADED
+                            )
+                        )
+                        networkState.postValue(
+                            Event(
+                                NetworkState.LOADED
+                            )
+                        )
                     }
                 }, { throwable ->
-                    networkState.postValue(Event(NetworkState.error(throwable.message)))
+                    networkState.postValue(
+                        Event(
+                            NetworkState.error(throwable.message)
+                        )
+                    )
                 })
         )
     }
@@ -60,10 +70,18 @@ class AnimeDataSource(
                             if (params.key == anime.top?.size) null else page++
                         anime.top?.let {
                             callback.onResult(it, nextKey)
-                            networkState.postValue(Event(NetworkState.LOADED))
+                            networkState.postValue(
+                                Event(
+                                    NetworkState.LOADED
+                                )
+                            )
                         }
                     }, { throwable ->
-                        networkState.postValue(Event(NetworkState.error(throwable.message)))
+                        networkState.postValue(
+                            Event(
+                                NetworkState.error(throwable.message)
+                            )
+                        )
                     })
         )
 

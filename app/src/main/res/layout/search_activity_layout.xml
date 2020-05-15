@@ -23,15 +23,28 @@
             app:layout_scrollFlags="enterAlways|snap|scroll">
 
         </androidx.appcompat.widget.Toolbar>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layout_scrollFlags="enterAlways|snap|scroll">
 
+            <Spinner
+                android:id="@+id/search_type_spinner"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="1dp"
+                android:layout_marginBottom="@dimen/layout_margin_top10dp"
+                app:layout_scrollFlags="enterAlways|snap|scroll" />
 
-        <Spinner
-            android:id="@+id/search_type_spinner"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:layout_marginBottom="@dimen/layout_margin_top10dp"
-            app:layout_scrollFlags="enterAlways|snap|scroll" />
+            <Spinner
+                android:id="@+id/search_orderby_spinner"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/layout_margin_top10dp"
+                app:layout_scrollFlags="enterAlways|snap|scroll" />
+
+        </LinearLayout>
 
 
 
