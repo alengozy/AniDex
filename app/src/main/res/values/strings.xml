@@ -49,7 +49,5 @@
         <item>Order By</item>
         <item>Title</item>
         <item>Score</item>
-        <item>Start Date</item>
-        <item>End Date</item>
     </string-array>
 </resources>
