@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
-import com.example.anidex.ui.*
+import com.example.anidex.presentation.*
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable

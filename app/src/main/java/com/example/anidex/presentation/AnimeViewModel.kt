@@ -1,4 +1,4 @@
-package com.example.anidex.ui
+package com.example.anidex.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,10 +17,10 @@ class AnimeViewModel : ViewModel() {
     var animeList: LiveData<PagedList<AnimeManga>>
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
+    private val service: APIService = APIService.createClient()
     var type: MutableLiveData<String> = MutableLiveData("anime")
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
     var request: MutableLiveData<String> = MutableLiveData("")
-    private val service: APIService = APIService.createClient()
     private var sourceFactory: GetSeriesDataSourceFactory =
         GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
 
@@ -44,16 +44,15 @@ class AnimeViewModel : ViewModel() {
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        compositeDisposable.dispose()
-
-    }
-
     fun refresh() {
         sourceFactory.mutableLiveData.value?.invalidate()
 
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.dispose()
+
+    }
 
 }

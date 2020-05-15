@@ -1,4 +1,4 @@
-package com.example.anidex.ui
+package com.example.anidex.presentation
 
 
 import androidx.lifecycle.MutableLiveData
@@ -36,23 +36,11 @@ class AnimeDataSource(
                 ?.subscribe({ anime ->
                     anime.top?.let {
                         callback.onResult(it, null, page++)
-                        initialLoad.postValue(
-                            Event(
-                                NetworkState.LOADED
-                            )
-                        )
-                        networkState.postValue(
-                            Event(
-                                NetworkState.LOADED
-                            )
-                        )
+                        initialLoad.postValue(Event(NetworkState.LOADED ))
+                        networkState.postValue(Event(NetworkState.LOADED))
                     }
                 }, { throwable ->
-                    networkState.postValue(
-                        Event(
-                            NetworkState.error(throwable.message)
-                        )
-                    )
+                    networkState.postValue(Event( NetworkState.error(throwable.message)))
                 })
         )
     }
