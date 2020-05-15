@@ -1,4 +1,4 @@
-package com.example.anidex.presentation
+package com.example.anidex.ui
 
 import android.graphics.Bitmap
 import android.graphics.Color

@@ -1,4 +1,4 @@
-package com.example.anidex.presentation
+package com.example.anidex.ui
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.anidex.model.AnimeManga

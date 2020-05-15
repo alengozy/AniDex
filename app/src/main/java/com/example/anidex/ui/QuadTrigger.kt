@@ -1,4 +1,4 @@
-package com.example.anidex.presentation
+package com.example.anidex.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData

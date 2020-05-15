@@ -1,4 +1,4 @@
-package com.example.anidex.presentation
+package com.example.anidex.ui
 
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +8,7 @@ import com.example.anidex.model.AnimeManga
 import com.example.anidex.model.NetworkState
 import com.example.anidex.model.NetworkState.Companion.LOADED
 
-class AnimeAdapter(private val itemClickListener: (View, Int, Int) -> Unit) :
+class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit) :
     PagedListAdapter<AnimeManga, RecyclerView.ViewHolder>(AniDiffUtil()) {
     private var networkState: NetworkState? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -1,4 +1,4 @@
-package com.example.anidex.presentation
+package com.example.anidex.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,20 +11,18 @@ import com.example.anidex.model.NetworkState
 import com.example.anidex.network.APIService
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
-class SearchViewModel : ViewModel() {
+class AnimeViewModel : ViewModel() {
+
 
     var animeList: LiveData<PagedList<AnimeManga>>
-    var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
-    val searchKey: MutableLiveData<String> = MutableLiveData()
-    val type: MutableLiveData<String> = MutableLiveData("")
-    val order: MutableLiveData<String> = MutableLiveData("")
-    val sort: MutableLiveData<String> = MutableLiveData("")
+    var type: MutableLiveData<String> = MutableLiveData("anime")
+    var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
+    var request: MutableLiveData<String> = MutableLiveData("")
     private val service: APIService = APIService.createClient()
-    private var sourceFactory: SearchDataSourceFactory =
-        SearchDataSourceFactory(service, compositeDisposable,
-            searchKey.value, order.value, sort.value, type.value)
+    private var sourceFactory: GetSeriesDataSourceFactory =
+        GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
 
     init {
         val config = PagedList.Config.Builder()
@@ -33,31 +31,23 @@ class SearchViewModel : ViewModel() {
             .setEnablePlaceholders(false)
             .build()
         animeList = Transformations.switchMap(
-            QuadTrigger(
-                searchKey,
-                order,
-                sort,
-                type
+            DoubleTrigger(
+                type,
+                request
             )
-        ) { data ->
-            sourceFactory = SearchDataSourceFactory(
-                APIService.createClient(),
-                compositeDisposable,
-                data.first,
-                data.second,
-                data.third,
-                data.fourth
-            )
+        ) { input ->
+            sourceFactory =
+                GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
             nState =
                 Transformations.switchMap(sourceFactory.mutableLiveData) { it.networkState } as MutableLiveData<Event<NetworkState>>
-            LivePagedListBuilder(sourceFactory, config)
-                .build()
+            LivePagedListBuilder(sourceFactory, config).build()
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
+
     }
 
     fun refresh() {
@@ -67,4 +57,3 @@ class SearchViewModel : ViewModel() {
 
 
 }
-
