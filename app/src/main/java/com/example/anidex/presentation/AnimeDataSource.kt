@@ -21,8 +21,10 @@ class AnimeDataSource(
 ) : PageKeyedDataSource<Int, AnimeManga>() {
     var networkState = MutableLiveData<Event<NetworkState>>()
 
-    override fun loadInitial(params: LoadInitialParams<Int>,
-                             callback: LoadInitialCallback<Int, AnimeManga>
+    override fun loadInitial(
+        params: LoadInitialParams<Int>,
+        callback: LoadInitialCallback<Int, AnimeManga>
+
     ) {
         networkState.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
