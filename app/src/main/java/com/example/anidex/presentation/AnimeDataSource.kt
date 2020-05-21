@@ -20,7 +20,6 @@ class AnimeDataSource(
     private var request: String?
 ) : PageKeyedDataSource<Int, AnimeManga>() {
     var networkState = MutableLiveData<Event<NetworkState>>()
-    var initialLoad = MutableLiveData<Event<NetworkState>>()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
@@ -28,7 +27,6 @@ class AnimeDataSource(
 
     ) {
         networkState.postValue(Event(NetworkState.LOADING))
-        initialLoad.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
             service.getSeries(page, type, request)
                 ?.observeOn(AndroidSchedulers.mainThread())
@@ -36,7 +34,6 @@ class AnimeDataSource(
                 ?.subscribe({ anime ->
                     anime.top?.let {
                         callback.onResult(it, null, page++)
-                        initialLoad.postValue(Event(NetworkState.LOADED ))
                         networkState.postValue(Event(NetworkState.LOADED))
                     }
                 }, { throwable ->

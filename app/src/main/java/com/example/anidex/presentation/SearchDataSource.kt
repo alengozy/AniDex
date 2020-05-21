@@ -21,7 +21,6 @@ class SearchDataSource(
     private var page: Int
 ) : PageKeyedDataSource<Int, AnimeManga>() {
     val networkState = MutableLiveData<Event<NetworkState>>()
-    private val initialLoad = MutableLiveData<Event<NetworkState>>()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
@@ -30,17 +29,11 @@ class SearchDataSource(
     ) {
 
         networkState.postValue(Event(NetworkState.LOADING))
-        initialLoad.postValue(Event(NetworkState.LOADING))
         compositeDisposable.add(
             service.searchAnime(type, searchKey, page, order, sort)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({ response ->
-                    initialLoad.postValue(
-                        Event(
-                            NetworkState.LOADED
-                        )
-                    )
                     networkState.postValue(
                         Event(
                             NetworkState.LOADED

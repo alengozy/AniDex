@@ -18,6 +18,7 @@ import com.bumptech.glide.request.target.Target
 import com.example.anidex.R
 import com.example.anidex.model.AnimeManga
 import kotlinx.android.synthetic.main.card_layout.view.*
+import kotlin.math.roundToInt
 
 fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
     itemView.setOnClickListener {
@@ -98,14 +99,14 @@ class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun manipulateColor(color: Int, factor: Float): Int {
         val a = Color.alpha(color)
-        val r = Math.round(Color.red(color) * factor)
-        val g = Math.round(Color.green(color) * factor)
-        val b = Math.round(Color.blue(color) * factor)
+        val r = (Color.red(color) * factor).roundToInt()
+        val g = (Color.green(color) * factor).roundToInt()
+        val b = (Color.blue(color) * factor).roundToInt()
         return Color.argb(
             a,
-            Math.min(r, 255),
-            Math.min(g, 255),
-            Math.min(b, 255)
+            r.coerceAtMost(255),
+            g.coerceAtMost(255),
+            b.coerceAtMost(255)
         )
     }
 

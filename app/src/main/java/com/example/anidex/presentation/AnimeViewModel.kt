@@ -13,7 +13,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class AnimeViewModel : ViewModel() {
 
-
     var animeList: LiveData<PagedList<AnimeManga>>
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
@@ -46,7 +45,6 @@ class AnimeViewModel : ViewModel() {
 
     fun refresh() {
         sourceFactory.mutableLiveData.value?.invalidate()
-
     }
 
     override fun onCleared() {
