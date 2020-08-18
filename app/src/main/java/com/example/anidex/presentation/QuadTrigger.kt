@@ -1,10 +1,9 @@
-package com.example.anidex.ui
+package com.example.anidex.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 
-class QuadTrigger<A, B, C, D>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>, d: LiveData<D>) :
-    MediatorLiveData<Quad<A?, B?, C?, D?>>() {
+class QuadTrigger<A, B, C, D>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>, d: LiveData<D>) : MediatorLiveData<Quad<A?, B?, C?, D?>>() {
     init {
         addSource(a) { value = Quad(it, b.value, c.value, d.value) }
         addSource(b) { value = Quad(a.value, it, c.value, d.value) }

@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.anidex.model.Characters
-import com.example.anidex.ui.CharacterAdapter
-import com.example.anidex.ui.GenreAdapter
+import com.example.anidex.presentation.CharacterAdapter
+import com.example.anidex.presentation.GenreAdapter
 import kotlinx.android.synthetic.main.details_layout.*
 
 class DetailsActivity : AppCompatActivity() {

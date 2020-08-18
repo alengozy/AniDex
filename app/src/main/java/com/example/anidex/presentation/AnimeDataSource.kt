@@ -1,4 +1,5 @@
-package com.example.anidex.ui
+package com.example.anidex.presentation
+
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
@@ -11,61 +12,61 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 
-class SearchDataSource(
+class AnimeDataSource(
     private val service: APIService,
     private val compositeDisposable: CompositeDisposable,
-    private val searchKey: String?,
     private val type: String?,
-    private val order: String?,
-    private val sort: String?,
-    private var page: Int
+    private var page: Int,
+    private var request: String?,
+    private var url: String = "https://api.jikan.moe/v3/top/$type/$page/$request"
 ) : PageKeyedDataSource<Int, AnimeManga>() {
-    val networkState = MutableLiveData<Event<NetworkState>>()
+    var networkState = MutableLiveData<Event<NetworkState>>()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, AnimeManga>
 
     ) {
-
         networkState.postValue(Event(NetworkState.LOADING))
+        if("null" in url) url = url.replace("/null","")
+        if(url.endsWith('/')) url = url.dropLast(1)
         compositeDisposable.add(
-            service.searchAnime(type, searchKey, page, order, sort)
+            service.getSeries(url)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
-                ?.subscribe({ response ->
-                    networkState.postValue(
-                        Event(
-                            NetworkState.LOADED
-                        )
-                    )
-                    response.results.let { callback.onResult(it, null, page++) }
+                ?.subscribe({ anime ->
+                    anime.top?.let {
+                        callback.onResult(it, null, page)
+                        networkState.postValue(Event(NetworkState.LOADED))
+                    }
                 }, { throwable ->
-                    networkState.postValue(
-                        Event(
-                            NetworkState.error(throwable.message)
-                        )
-                    )
+                    networkState.postValue(Event( NetworkState.error(throwable.message)))
                 })
         )
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         networkState.postValue(Event(NetworkState.LOADING))
+        var url = "https://api.jikan.moe/v3/top/$type/$page/$request"
+        if("null" in url) url = url.replace("/null","")
+        if(url.endsWith('/')) url = url.dropLast(1)
         compositeDisposable.add(
-            service.searchAnime(type, searchKey, page, order, sort)
+            service.getSeries(url)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe(
-                    { response ->
-                        networkState.postValue(
-                            Event(
-                                NetworkState.LOADED
+                    { anime ->
+
+                        val nextPage =
+                            if (params.key == anime.top?.size) null else page++
+                        anime.top?.let {
+                            callback.onResult(it, nextPage)
+                            networkState.postValue(
+                                Event(
+                                    NetworkState.LOADED
+                                )
                             )
-                        )
-                        val nextKey =
-                            if (params.key == response.results.size) null else page++
-                        response.results.let { callback.onResult(it, nextKey) }
+                        }
                     }, { throwable ->
                         networkState.postValue(
                             Event(
@@ -80,6 +81,5 @@ class SearchDataSource(
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, AnimeManga>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
 
 }

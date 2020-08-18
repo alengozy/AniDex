@@ -22,12 +22,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
-import com.example.anidex.ui.*
+import com.example.anidex.presentation.*
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.drawer_layout.*
+import kotlinx.android.synthetic.main.search_activity_layout.*
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -43,6 +44,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var detailNetworkState: MutableLiveData<NetworkState> = MutableLiveData()
     private val service: APIService = APIService.createClient()
     private val compositeDisposable = CompositeDisposable()
+    private var typeanime: String = "anime"
+    private var typemanga: String = "manga"
+    private var filterpop: String = "bypopularity"
+    private var filterupcoming: String = "upcoming"
+    private var filterairing: String = "airing"
+    private var url: String = ""
 
 
     @ExperimentalStdlibApi
@@ -53,9 +60,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val detailIntent = Intent(this, DetailsActivity::class.java)
         Handler().postDelayed({
             val type = viewModel.type.value
-            if (type == "anime")
+            if (type == typeanime)
                 fetchAnimeDetails(listItem, detailIntent)
-            else if (type == "manga") fetchMangaDetails(listItem, detailIntent)
+            else if (type == typemanga) fetchMangaDetails(listItem, detailIntent)
         }, 300)
     }
 
@@ -101,41 +108,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.nav_anime_airing) {
-            if (viewModel.type.value != "anime") {
+            if (viewModel.type.value != typeanime) {
                 main_toolbar_sub.text = getString(R.string.menuanime)
-                viewModel.type.postValue("anime")
+                viewModel.type.postValue(typeanime)
             }
-            if (viewModel.request.value != "airing") {
-                viewModel.request.postValue("airing")
+            if (viewModel.request.value != filterairing) {
+                viewModel.request.postValue(filterairing)
                 main_toolbar_text.text = getString(R.string.pref_airing)
 
             }
         }
         if (id == R.id.nav_anime_upcoming) {
-            if (viewModel.type.value != "anime") {
+            if (viewModel.type.value != typeanime) {
                 main_toolbar_sub.text = getString(R.string.menuanime)
-                viewModel.type.postValue("anime")
+                viewModel.type.postValue(typeanime)
             }
-            if (viewModel.request.value != "upcoming") {
-                viewModel.request.postValue("upcoming")
+            if (viewModel.request.value != filterupcoming) {
+                viewModel.request.postValue(filterupcoming)
                 main_toolbar_text.text = getString(R.string.pref_upcoming)
             }
 
         }
         if (id == R.id.nav_anime_popular) {
-            if (viewModel.type.value != "anime") {
+            if (viewModel.type.value != typeanime) {
                 main_toolbar_sub.text = getString(R.string.menuanime)
-                viewModel.type.postValue("anime")
+                viewModel.type.postValue(typeanime)
             }
-            if (viewModel.request.value != "bypopularity") {
-                viewModel.request.postValue("bypopularity")
+            if (viewModel.request.value != filterpop) {
+                viewModel.request.postValue(filterpop)
                 main_toolbar_text.text = getString(R.string.pref_by_popularity)
             }
         }
         if (id == R.id.nav_anime_highest_rated) {
-            if (viewModel.type.value != "anime") {
+            if (viewModel.type.value != typeanime) {
                 main_toolbar_sub.text = getString(R.string.menuanime)
-                viewModel.type.postValue("anime")
+                viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
@@ -143,18 +150,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         if (id == R.id.nav_manga_popular) {
-            if (viewModel.type.value != "manga") {
+            if (viewModel.type.value != typemanga) {
                 main_toolbar_sub.text = getString(R.string.menumanga)
-                viewModel.type.postValue("manga")
+                viewModel.type.postValue(typemanga)
             }
-            if (viewModel.request.value != "bypopularity") {
-                viewModel.request.postValue("bypopularity")
+            if (viewModel.request.value != filterpop) {
+                viewModel.request.postValue(filterpop)
             }
         }
         if (id == R.id.nav_manga_highest_rated) {
-            if (viewModel.type.value != "manga") {
+            if (viewModel.type.value != typemanga) {
                 main_toolbar_sub.text = getString(R.string.menumanga)
-                viewModel.type.postValue("manga")
+                viewModel.type.postValue(typemanga)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
@@ -204,10 +211,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     @ExperimentalStdlibApi
     private fun fetchAnimeDetails(listItem: AnimeManga?, intent: Intent) {
-
-
+        val id = listItem?.malId
+        url = "https://api.jikan.moe/v3/anime/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getAnimeDetail(listItem?.malId, "anime", "")
+        compositeDisposable.add(service.getAnimeDetail(url)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
             ?.subscribe({ response ->
@@ -221,9 +228,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent) {
 
-
+        val id = listItem?.malId
+        url = "https://api.jikan.moe/v3/manga/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getMangaDetail(listItem?.malId, "manga", "")
+        compositeDisposable.add(service.getMangaDetail(url)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
             ?.subscribe({ response ->
@@ -238,7 +246,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val request: String = if (type == "anime")
             "characters_staff"
         else "characters"
-        compositeDisposable.add(service.getCharactersDetail(malId, type, request)
+        url = "https://api.jikan.moe/v3/$type/$malId/$request"
+        compositeDisposable.add(service.getCharactersDetail(url)
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeOn(Schedulers.io())
             ?.subscribe({ response ->
@@ -346,6 +355,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initObservers() {
+        swipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
             viewModel.nState.observe(this,
                 EventObserver { networkState ->
@@ -369,7 +379,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         it
                     )
                 })
-        }, 100)
+        }, 2000)
 
 
     }

@@ -1,4 +1,4 @@
-package com.example.anidex.ui
+package com.example.anidex.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,7 +19,7 @@ class AnimeViewModel : ViewModel() {
     private val pageSize = 10
     var type: MutableLiveData<String> = MutableLiveData("anime")
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
-    var request: MutableLiveData<String> = MutableLiveData("")
+    var request: MutableLiveData<String> = MutableLiveData()
     private val service: APIService = APIService.createClient()
     private var sourceFactory: GetSeriesDataSourceFactory =
         GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
@@ -40,7 +40,7 @@ class AnimeViewModel : ViewModel() {
                 GetSeriesDataSourceFactory(service, compositeDisposable, input.first, input.second)
             nState =
                 Transformations.switchMap(sourceFactory.mutableLiveData) { it.networkState } as MutableLiveData<Event<NetworkState>>
-            LivePagedListBuilder(sourceFactory, config).build()
+            return@switchMap LivePagedListBuilder(sourceFactory, config).build()
         }
     }
 

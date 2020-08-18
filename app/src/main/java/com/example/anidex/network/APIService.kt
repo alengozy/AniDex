@@ -8,37 +8,36 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 
 interface APIService {
 
 
-    @GET("/v3/top/{type}/{page}/{param}")
+    @GET
     fun getSeries(
-        @Path("page") page: Int?,
-        @Path("type") type: String?,
-        @Path("param") param: String? = ""
+        @Url seriesUrl: String
     ): Observable<Top>?
 
-    @GET("/v3/{type}/{id}/{request}")
+    @GET("/v3/top/{type}/{page}/")
+    fun getSeries(
+        @Path("page") page: Int?,
+        @Path("type") type: String?
+    ): Observable<Top>?
+
+    @GET
     fun getMangaDetail(
-        @Path("id") id: Int?,
-        @Path("type") type: String?,
-        @Path("request") request: String?
+        @Url mangaUrl: String
     ): Observable<MangaDetail?>?
 
-    @GET("/v3/{type}/{id}/{request}")
+    @GET
     fun getAnimeDetail(
-        @Path("id") id: Int?,
-        @Path("type") type: String?,
-        @Path("request") request: String?
+        @Url animeUrl: String
     ): Observable<AnimeDetail?>?
 
-    @GET("/v3/{type}/{id}/{request}")
+    @GET
     fun getCharactersDetail(
-        @Path("id") id: Int?,
-        @Path("type") type: String?,
-        @Path("request") request: String?
+        @Url charDetailUrl: String
     ): Observable<Characters>?
 
 

@@ -11,19 +11,18 @@ import android.view.View
 import android.view.Window
 import android.widget.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.widget.CompoundButtonCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.anidex.ui.AnimeAdapter
-import com.example.anidex.ui.SearchViewModel
+import com.example.anidex.presentation.AnimeAdapter
+import com.example.anidex.presentation.SearchViewModel
 import kotlinx.android.synthetic.main.search_activity_layout.*
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
-import com.example.anidex.ui.EventObserver
+import com.example.anidex.presentation.EventObserver
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -53,6 +52,7 @@ class SearchActivity : AppCompatActivity() {
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private val service = APIService.createClient()
     private lateinit var type: String
+    private lateinit var url: String
 
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -220,10 +220,11 @@ class SearchActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     private fun fetchAnimeDetails(listItem: AnimeManga?, intent: Intent) {
 
-
+        val id = listItem?.malId
+        url = "https://api.jikan.moe/v3/anime/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
         compositeDisposable.add(
-            service.getAnimeDetail(listItem?.malId, "anime", "")
+            service.getAnimeDetail(url)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({ response ->
@@ -237,10 +238,11 @@ class SearchActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     private fun fetchMangaDetails(listItem: AnimeManga?, intent: Intent) {
 
-
+        val id = listItem?.malId
+        url = "https://api.jikan.moe/v3/manga/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
         compositeDisposable.add(
-            service.getMangaDetail(listItem?.malId, "manga", "")
+            service.getMangaDetail(url)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({ response ->
@@ -255,8 +257,9 @@ class SearchActivity : AppCompatActivity() {
         val request: String = if (type == "anime")
             "characters_staff"
         else "characters"
+        url = "https://api.jikan.moe/v3/$type/$malId/$request"
         compositeDisposable.add(
-            service.getCharactersDetail(malId, type, request)
+            service.getCharactersDetail(url)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe({ response ->
