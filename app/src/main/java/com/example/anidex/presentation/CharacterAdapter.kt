@@ -2,7 +2,6 @@ package com.example.anidex.presentation
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,9 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.example.anidex.R
+import com.example.anidex.databinding.CharacterItemBinding
 import com.example.anidex.model.Character
-import kotlinx.android.synthetic.main.character_item.view.*
+
 
 class CharacterAdapter(
     private val dataSource: ArrayList<Character>?,
@@ -25,13 +24,8 @@ class CharacterAdapter(
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
-        return CharacterViewHolder(
-            LayoutInflater.from(context).inflate(
-                R.layout.character_item,
-                parent,
-                false
-            )
-        )
+        val binding = CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CharacterViewHolder(binding)
     }
 
     // Binds each animal in the ArrayList to a view
@@ -50,8 +44,8 @@ class CharacterAdapter(
 
 }
 
-class CharacterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val name: TextView = view.char_name
-    val role: TextView = view.roletext
-    val img: ImageView = view.character_img
+class CharacterViewHolder(characterBinding: CharacterItemBinding) : RecyclerView.ViewHolder(characterBinding.root) {
+    val name: TextView = characterBinding.charName
+    val role: TextView = characterBinding.roletext
+    val img: ImageView = characterBinding.characterImg
 }

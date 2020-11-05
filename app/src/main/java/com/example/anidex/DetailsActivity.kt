@@ -8,53 +8,56 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.anidex.databinding.DetailsLayoutBinding
 import com.example.anidex.model.Characters
 import com.example.anidex.presentation.CharacterAdapter
 import com.example.anidex.presentation.GenreAdapter
-import kotlinx.android.synthetic.main.details_layout.*
+
 
 class DetailsActivity : AppCompatActivity() {
+    private lateinit var binding: DetailsLayoutBinding
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.details_layout)
-        setSupportActionBar(details_toolbar)
+        binding = DetailsLayoutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.detailsToolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        details_toolbar.setNavigationOnClickListener {
+        binding.detailsToolbar.setNavigationOnClickListener {
             finish()
         }
-        detail_title.text = intent.getStringExtra("title")
-        detail_releasedate.text = intent.getStringExtra("startDate")
-        rankdetails.text =
+        binding.detailTitle.text = intent.getStringExtra("title")
+        binding.detailReleasedate.text = intent.getStringExtra("startDate")
+        binding.rankdetails.text =
             String.format(resources.getString(R.string.ranklabel), intent.getStringExtra("rank"))
-        scoredetails.text = intent.getStringExtra("score")
-        detail_releasedate.text = intent.getStringExtra("fromdate")
-        detail_status.text = intent.getStringExtra("status")
+        binding.scoredetails.text = intent.getStringExtra("score")
+        binding.detailReleasedate.text = intent.getStringExtra("fromdate")
+        binding.detailStatus.text = intent.getStringExtra("status")
         val enddate = intent.getStringExtra("enddate")
-        toolbar_details_main.text = intent.getStringExtra("title")
+        binding.toolbarDetailsMain.text = intent.getStringExtra("title")
         if (enddate != "Null null, null")
-            enddate_detail.text = enddate
-        synopsis_view.text = intent.getStringExtra("synopsis")
-        englishtitledetail.text = intent.getStringExtra("englishtitle")
+            binding.enddateDetail.text = enddate
+        binding.synopsisView.text = intent.getStringExtra("synopsis")
+        binding.englishtitledetail.text = intent.getStringExtra("englishtitle")
         Glide
             .with(this@DetailsActivity)
             .load(intent.getStringExtra("image"))
             .transition(DrawableTransitionOptions())
             .fitCenter()
-            .into(detail_image)
+            .into(binding.detailImage)
 
-        genrerecycler.adapter =
+        binding.genrerecycler.adapter =
             GenreAdapter(intent.getParcelableArrayListExtra("genres"), this@DetailsActivity)
-        genrerecycler.layoutManager =
+        binding.genrerecycler.layoutManager =
             LinearLayoutManager(this@DetailsActivity, LinearLayoutManager.HORIZONTAL, false)
         if (intent.getStringExtra("trailerlink") != "null")
-            details_youtube_link.setOnClickListener {
+            binding.detailsYoutubeLink.setOnClickListener {
                 openYoutubeLink(intent.getStringExtra("trailerlink"))
-            } else details_youtube_link.text = "-"
+            } else binding.detailsYoutubeLink.text = "-"
         val characters = intent.getParcelableExtra<Characters>("characters")?.characters
-        charactercycler.adapter = CharacterAdapter(characters, this@DetailsActivity)
-        charactercycler.layoutManager =
+        binding.charactercycler.adapter = CharacterAdapter(characters, this@DetailsActivity)
+        binding.charactercycler.layoutManager =
             LinearLayoutManager(this@DetailsActivity, LinearLayoutManager.HORIZONTAL, false)
     }
 

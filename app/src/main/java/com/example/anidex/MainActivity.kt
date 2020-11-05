@@ -1,5 +1,6 @@
 package com.example.anidex
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -20,6 +21,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.anidex.databinding.ActivityMainBinding
+import com.example.anidex.databinding.DrawerLayoutBinding
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
 import com.example.anidex.presentation.*
@@ -27,14 +30,14 @@ import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.drawer_layout.*
-import kotlinx.android.synthetic.main.search_activity_layout.*
 import java.time.OffsetDateTime
 import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    private lateinit var drawerLayoutBinding: DrawerLayoutBinding
+    private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
@@ -69,12 +72,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        drawerLayoutBinding = DrawerLayoutBinding.inflate(layoutInflater)
+        setContentView(drawerLayoutBinding.root)
         overridePendingTransition(0, 0)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.nav_view)
+        drawerLayout = activityMainBinding.drawerLayout
+        navigationView = activityMainBinding.navView
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, 0, 0
         )
@@ -109,62 +114,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val id = item.itemId
         if (id == R.id.nav_anime_airing) {
             if (viewModel.type.value != typeanime) {
-                main_toolbar_sub.text = getString(R.string.menuanime)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterairing) {
                 viewModel.request.postValue(filterairing)
-                main_toolbar_text.text = getString(R.string.pref_airing)
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_airing)
 
             }
         }
         if (id == R.id.nav_anime_upcoming) {
             if (viewModel.type.value != typeanime) {
-                main_toolbar_sub.text = getString(R.string.menuanime)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterupcoming) {
                 viewModel.request.postValue(filterupcoming)
-                main_toolbar_text.text = getString(R.string.pref_upcoming)
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_upcoming)
             }
 
         }
         if (id == R.id.nav_anime_popular) {
             if (viewModel.type.value != typeanime) {
-                main_toolbar_sub.text = getString(R.string.menuanime)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterpop) {
                 viewModel.request.postValue(filterpop)
-                main_toolbar_text.text = getString(R.string.pref_by_popularity)
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
             }
         }
         if (id == R.id.nav_anime_highest_rated) {
             if (viewModel.type.value != typeanime) {
-                main_toolbar_sub.text = getString(R.string.menuanime)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
-                main_toolbar_text.text = getString(R.string.pref_highest_rated)
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
             }
         }
         if (id == R.id.nav_manga_popular) {
             if (viewModel.type.value != typemanga) {
-                main_toolbar_sub.text = getString(R.string.menumanga)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menumanga)
                 viewModel.type.postValue(typemanga)
             }
             if (viewModel.request.value != filterpop) {
                 viewModel.request.postValue(filterpop)
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
             }
         }
         if (id == R.id.nav_manga_highest_rated) {
             if (viewModel.type.value != typemanga) {
-                main_toolbar_sub.text = getString(R.string.menumanga)
+                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menumanga)
                 viewModel.type.postValue(typemanga)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
+                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
             }
         }
         item.isChecked = true
@@ -177,7 +184,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     private fun initViews() {
         animeadapter = AnimeAdapter(itemOnClick)
-        rv_anime.apply {
+        drawerLayoutBinding.rvAnime.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
@@ -206,7 +213,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        drawerLayoutBinding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     @ExperimentalStdlibApi
@@ -355,11 +362,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initObservers() {
-        swipeRefreshLayout.isRefreshing = false
+        drawerLayoutBinding.swipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
             viewModel.nState.observe(this,
                 EventObserver { networkState ->
-                    swipeRefreshLayout.isRefreshing =
+                    drawerLayoutBinding.swipeRefreshLayout.isRefreshing =
                         networkState.status == NetworkState.LOADING.status
                 })
             viewModel.nState.observe(this@MainActivity,
@@ -370,7 +377,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             "${networkState.message}. Swipe-up to try again",
                             Toast.LENGTH_SHORT
                         ).show()
-                    swipeRefreshLayout.isRefreshing = false
+                    drawerLayoutBinding.swipeRefreshLayout.isRefreshing = false
                 })
             viewModel.nState.observe(
                 this@MainActivity,

@@ -16,8 +16,8 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.anidex.R
+import com.example.anidex.databinding.CardLayoutBinding
 import com.example.anidex.model.AnimeManga
-import kotlinx.android.synthetic.main.card_layout.view.*
 import kotlin.math.roundToInt
 
 fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
@@ -27,8 +27,9 @@ fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, t
     return this
 }
 
-class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class CardViewHolder(private val cardBinding: CardLayoutBinding) : RecyclerView.ViewHolder(cardBinding.root) {
     fun bind(data: AnimeManga?) {
+
 
         Glide
             .with(itemView.context)
@@ -57,8 +58,8 @@ class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                     val p = Palette.from(resource).generate()
                     val pColorPalette =
                         p.getVibrantColor(ContextCompat.getColor(itemView.context, R.color.bgColor))
-                    itemView.card_view.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
-                    itemView.cardepisode.setCardBackgroundColor(
+                    cardBinding.cardView.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
+                    cardBinding.cardepisode.setCardBackgroundColor(
                         manipulateColor(
                             pColorPalette,
                             0.68f
@@ -68,7 +69,7 @@ class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                 }
             })
             .fitCenter()
-            .into(itemView.thumbnail)
+            .into(cardBinding.thumbnail)
         val epsstring: String
         val episodecount: Int
         if (data?.type != "Manga") {
@@ -82,9 +83,9 @@ class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                 episodecount.toString() + "vols"
             else "Ongoing"
         }
-        itemView.episode_ct.text = epsstring
-        itemView.title.text = data.title
-        itemView.user_rating.text = data.score.toString()
+        cardBinding.episodeCt.text = epsstring
+        cardBinding.title.text = data.title
+        cardBinding.userRating.text = data.score.toString()
 
 
     }
@@ -92,7 +93,7 @@ class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     companion object {
         fun createHolder(parent: ViewGroup): CardViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
-            val view = layoutInflater.inflate(R.layout.card_layout, parent, false)
+            val view = CardLayoutBinding.inflate(layoutInflater, parent, false)
             return CardViewHolder(view)
         }
     }

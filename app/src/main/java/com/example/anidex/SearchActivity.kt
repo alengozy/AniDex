@@ -17,9 +17,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.anidex.databinding.SearchActivityLayoutBinding
 import com.example.anidex.presentation.AnimeAdapter
 import com.example.anidex.presentation.SearchViewModel
-import kotlinx.android.synthetic.main.search_activity_layout.*
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
 import com.example.anidex.presentation.EventObserver
@@ -44,6 +44,7 @@ class SearchActivity : AppCompatActivity() {
             else if (type == "manga") fetchMangaDetails(listItem, detailIntent)
         }, 300)
     }
+    private lateinit var binding: SearchActivityLayoutBinding
     private lateinit var viewModel: SearchViewModel
     private lateinit var searchView: SearchView
     private lateinit var animeadapter: AnimeAdapter
@@ -57,11 +58,12 @@ class SearchActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.search_activity_layout)
-        setSupportActionBar(search_activity_toolbar)
+        binding = SearchActivityLayoutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.searchActivityToolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        search_activity_toolbar.setNavigationOnClickListener {
+        binding.searchActivityToolbar.setNavigationOnClickListener {
             finish()
         }
 
@@ -99,7 +101,7 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume();
-        search_activity_root.requestFocus();
+        binding.searchActivityToolbar.requestFocus();
 
     }
 
@@ -112,17 +114,17 @@ class SearchActivity : AppCompatActivity() {
             R.layout.spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            search_type_spinner.adapter = adapter
+            binding.searchTypeSpinner.adapter = adapter
         }
         ArrayAdapter.createFromResource(this, R.array.orderby_array, R.layout.spinner_item)
             .also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                search_orderby_spinner.adapter = adapter
+                binding.searchOrderbySpinner.adapter = adapter
             }
         if(type=="anime")
-        search_type_spinner.setSelection(0)
-        else search_type_spinner.setSelection(1)
-        search_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            binding.searchTypeSpinner.setSelection(0)
+        else binding.searchTypeSpinner.setSelection(1)
+        binding.searchTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parentView: AdapterView<*>?,
                 selectedItemView: View?,
@@ -130,14 +132,14 @@ class SearchActivity : AppCompatActivity() {
                 id: Long
             ) {
                     //search_swipeRefreshLayout.isRefreshing = true
-                    type = search_type_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
+                    type = binding.searchTypeSpinner.selectedItem.toString().toLowerCase(Locale.ROOT)
                     viewModel.type.postValue(type)
                     initObservers()
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {}
         }
-        search_orderby_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.searchOrderbySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parentView: AdapterView<*>?,
                 selectedItemView: View?,
@@ -146,7 +148,7 @@ class SearchActivity : AppCompatActivity() {
             ) {
                 if(position>0){
                 //search_swipeRefreshLayout.isRefreshing = true
-                val order = search_orderby_spinner.selectedItem.toString().toLowerCase(Locale.ROOT)
+                val order = binding.searchOrderbySpinner.selectedItem.toString().toLowerCase(Locale.ROOT)
                 viewModel.order.postValue(order)
                 initObservers()
                 }
@@ -155,7 +157,7 @@ class SearchActivity : AppCompatActivity() {
             override fun onNothingSelected(parentView: AdapterView<*>?) {}
         }
         animeadapter = AnimeAdapter(itemOnClick)
-        rv_anime_search.apply {
+        binding.rvAnimeSearch.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
@@ -184,15 +186,15 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun initSwipeRefresh() {
-        search_swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.searchSwipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun initObservers() {
-        search_swipeRefreshLayout.isRefreshing = false
+        binding.searchSwipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
             viewModel.nState.observe(this,
                 EventObserver { networkState ->
-                    search_swipeRefreshLayout.isRefreshing =
+                    binding.searchSwipeRefreshLayout.isRefreshing =
                         networkState.status == NetworkState.LOADING.status
                 })
             viewModel.nState.observe(this@SearchActivity,
@@ -203,7 +205,7 @@ class SearchActivity : AppCompatActivity() {
                             "${networkState.message}. Swipe-up to try again",
                             Toast.LENGTH_SHORT
                         ).show()
-                    search_swipeRefreshLayout.isRefreshing = false
+                    binding.searchSwipeRefreshLayout.isRefreshing = false
                 })
             viewModel.nState.observe(
                 this@SearchActivity,
