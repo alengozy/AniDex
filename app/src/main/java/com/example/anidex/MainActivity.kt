@@ -1,6 +1,5 @@
 package com.example.anidex
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -22,7 +21,6 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.databinding.ActivityMainBinding
-import com.example.anidex.databinding.DrawerLayoutBinding
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
 import com.example.anidex.presentation.*
@@ -36,7 +34,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var drawerLayoutBinding: DrawerLayoutBinding
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
@@ -73,10 +70,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-        drawerLayoutBinding = DrawerLayoutBinding.inflate(layoutInflater)
-        setContentView(drawerLayoutBinding.root)
+        setContentView(activityMainBinding.root)
         overridePendingTransition(0, 0)
-        toolbar = findViewById(R.id.toolbar)
+        toolbar = activityMainBinding.toolbar
         setSupportActionBar(toolbar)
         drawerLayout = activityMainBinding.drawerLayout
         navigationView = activityMainBinding.navView
@@ -112,66 +108,70 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
+        if (id == R.id.nav_foryou){
+            val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
+            startActivity(intent)
+        }
         if (id == R.id.nav_anime_airing) {
             if (viewModel.type.value != typeanime) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterairing) {
                 viewModel.request.postValue(filterairing)
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_airing)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_airing)
 
             }
         }
         if (id == R.id.nav_anime_upcoming) {
             if (viewModel.type.value != typeanime) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterupcoming) {
                 viewModel.request.postValue(filterupcoming)
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_upcoming)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_upcoming)
             }
 
         }
         if (id == R.id.nav_anime_popular) {
             if (viewModel.type.value != typeanime) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != filterpop) {
                 viewModel.request.postValue(filterpop)
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
             }
         }
         if (id == R.id.nav_anime_highest_rated) {
             if (viewModel.type.value != typeanime) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
                 viewModel.type.postValue(typeanime)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
             }
         }
         if (id == R.id.nav_manga_popular) {
             if (viewModel.type.value != typemanga) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menumanga)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
                 viewModel.type.postValue(typemanga)
             }
             if (viewModel.request.value != filterpop) {
                 viewModel.request.postValue(filterpop)
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
             }
         }
         if (id == R.id.nav_manga_highest_rated) {
             if (viewModel.type.value != typemanga) {
-                drawerLayoutBinding.mainToolbarSub.text = getString(R.string.menumanga)
+                activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
                 viewModel.type.postValue(typemanga)
             }
             if (viewModel.request.value != "") {
                 viewModel.request.postValue("")
-                drawerLayoutBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
+                activityMainBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
             }
         }
         item.isChecked = true
@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     private fun initViews() {
         animeadapter = AnimeAdapter(itemOnClick)
-        drawerLayoutBinding.rvAnime.apply {
+        activityMainBinding.rvAnime.apply {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             layoutManager =
@@ -207,13 +207,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         viewModel.animeList.observe(
             this@MainActivity,
-            Observer<PagedList<AnimeManga>> { animeadapter.submitList(it) })
+            { animeadapter.submitList(it) })
 
 
     }
 
     private fun initSwipeRefresh() {
-        drawerLayoutBinding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        activityMainBinding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     @ExperimentalStdlibApi
@@ -362,11 +362,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initObservers() {
-        drawerLayoutBinding.swipeRefreshLayout.isRefreshing = false
+        activityMainBinding.swipeRefreshLayout.isRefreshing = false
         Handler().postDelayed({
             viewModel.nState.observe(this,
                 EventObserver { networkState ->
-                    drawerLayoutBinding.swipeRefreshLayout.isRefreshing =
+                    activityMainBinding.swipeRefreshLayout.isRefreshing =
                         networkState.status == NetworkState.LOADING.status
                 })
             viewModel.nState.observe(this@MainActivity,
@@ -377,7 +377,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             "${networkState.message}. Swipe-up to try again",
                             Toast.LENGTH_SHORT
                         ).show()
-                    drawerLayoutBinding.swipeRefreshLayout.isRefreshing = false
+                    activityMainBinding.swipeRefreshLayout.isRefreshing = false
                 })
             viewModel.nState.observe(
                 this@MainActivity,
@@ -396,7 +396,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
         loadingDialog.setContentView(R.layout.loadingdialoglayout)
-        detailNetworkState.observe(this@MainActivity, Observer {
+        detailNetworkState.observe(this@MainActivity,{
             if (detailNetworkState.value?.status == NetworkState.LOADING.status)
                 loadingDialog.show()
             else

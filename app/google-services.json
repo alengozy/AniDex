@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "822833145671",
+    "firebase_url": "https://anidex-295114.firebaseio.com",
+    "project_id": "anidex-295114",
+    "storage_bucket": "anidex-295114.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822833145671:android:8d184a6fe7a41bb7508e62",
+        "android_client_info": {
+          "package_name": "com.example.anidex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822833145671-dj6q28alonith6hsk9kkpo9fq3n2ev2o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_2itQ_IujEz_OvR21xf6gVdH3Q09NJqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822833145671-dj6q28alonith6hsk9kkpo9fq3n2ev2o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

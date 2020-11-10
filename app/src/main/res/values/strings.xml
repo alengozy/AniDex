@@ -36,6 +36,7 @@
     <string name="switchsort">Sort:</string>
     <string name="ascending">Asc</string>
     <string name="descending">Desc</string>
+    <string name="foryou">For You</string>
     <string-array name="types_array">
         <item>Anime</item>
         <item>Manga</item>
