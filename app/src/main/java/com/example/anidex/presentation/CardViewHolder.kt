@@ -17,6 +17,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.anidex.R
 import com.example.anidex.databinding.CardLayoutBinding
+import com.example.anidex.model.AnimeDetail
 import com.example.anidex.model.AnimeManga
 import kotlin.math.roundToInt
 
@@ -83,6 +84,57 @@ class CardViewHolder(private val cardBinding: CardLayoutBinding) : RecyclerView.
                 episodecount.toString() + "vols"
             else "Ongoing"
         }
+        cardBinding.episodeCt.text = epsstring
+        cardBinding.title.text = data.title
+        cardBinding.userRating.text = data.score.toString()
+    }
+    fun bind(data: AnimeDetail?) {
+
+
+        Glide
+            .with(itemView.context)
+            .asBitmap()
+            .load(data?.imageUrl)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .transition(BitmapTransitionOptions.withCrossFade())
+            .listener(object : RequestListener<Bitmap> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Bitmap>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Bitmap,
+                    model: Any,
+                    target: Target<Bitmap>,
+                    dataSource: DataSource,
+                    p4: Boolean
+                ): Boolean {
+                    val p = Palette.from(resource).generate()
+                    val pColorPalette =
+                        p.getVibrantColor(ContextCompat.getColor(itemView.context, R.color.bgColor))
+                    cardBinding.cardView.setCardBackgroundColor(manipulateColor(pColorPalette, 0.68f))
+                    cardBinding.cardepisode.setCardBackgroundColor(
+                        manipulateColor(
+                            pColorPalette,
+                            0.68f
+                        )
+                    )
+                    return false
+                }
+            })
+            .fitCenter()
+            .into(cardBinding.thumbnail)
+
+        val episodecount: Int = data?.episodes!!
+        val epsstring = if (episodecount != 0)
+            episodecount.toString() + "eps"
+        else "Ongoing"
         cardBinding.episodeCt.text = epsstring
         cardBinding.title.text = data.title
         cardBinding.userRating.text = data.score.toString()

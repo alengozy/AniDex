@@ -36,6 +36,11 @@ interface APIService {
     ): Observable<AnimeDetail?>?
 
     @GET
+    fun getAnimeDetailRec(
+        @Url animeUrl: String
+    ): AnimeDetail?
+
+    @GET
     fun getCharactersDetail(
         @Url charDetailUrl: String
     ): Observable<Characters>?

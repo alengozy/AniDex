@@ -8,6 +8,18 @@ import java.util.*
 
 data class AnimeDetail(
     @Expose
+    @SerializedName("mal_id") var malId: Int,
+
+    @Expose
+    @SerializedName("image_url") var imageUrl: String,
+
+    @Expose
+    @SerializedName("title") var title: String,
+
+    @Expose
+    @SerializedName("score") var score: Double,
+
+    @Expose
     @SerializedName("title_english") var englishtitle: String,
     
     @Expose

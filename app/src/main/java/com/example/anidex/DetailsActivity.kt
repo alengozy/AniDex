@@ -27,6 +27,21 @@ class DetailsActivity : AppCompatActivity() {
         binding.detailsToolbar.setNavigationOnClickListener {
             finish()
         }
+        initViews()
+    }
+
+    private fun openYoutubeLink(youtubeURL: String?) {
+        val intentApp = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURL))
+        val intentBrowser = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURL))
+        try {
+            this.startActivity(intentApp)
+        } catch (ex: ActivityNotFoundException) {
+            this.startActivity(intentBrowser)
+        }
+
+    }
+
+    private fun initViews(){
         binding.detailTitle.text = intent.getStringExtra("title")
         binding.detailReleasedate.text = intent.getStringExtra("startDate")
         binding.rankdetails.text =
@@ -59,16 +74,6 @@ class DetailsActivity : AppCompatActivity() {
         binding.charactercycler.adapter = CharacterAdapter(characters, this@DetailsActivity)
         binding.charactercycler.layoutManager =
             LinearLayoutManager(this@DetailsActivity, LinearLayoutManager.HORIZONTAL, false)
-    }
-
-    private fun openYoutubeLink(youtubeURL: String?) {
-        val intentApp = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURL))
-        val intentBrowser = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURL))
-        try {
-            this.startActivity(intentApp)
-        } catch (ex: ActivityNotFoundException) {
-            this.startActivity(intentBrowser)
-        }
 
     }
 
