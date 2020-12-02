@@ -3,6 +3,8 @@ package com.example.anidex
 import RecommendationAdapter
 import android.app.Dialog
 import android.content.Intent
+import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
@@ -10,24 +12,31 @@ import android.view.Window
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.databinding.ActivityRecommendationBinding
+import com.example.anidex.databinding.LoadingdialoglayoutBinding
 import com.example.anidex.model.AnimeDetail
 import com.example.anidex.model.Characters
 import com.example.anidex.network.APIService
+import com.example.anidex.network.AuthServiceConfig
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.tensorflow.lite.Interpreter
-import java.io.InputStream
-import java.util.*
-import kotlin.collections.HashMap
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationException
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.AuthorizationService
+import org.tensorflow.lite.Interpreter
+import java.io.InputStream
 import java.time.OffsetDateTime
+import java.util.*
+import kotlin.collections.HashMap
 
 class RecommendationActivity : AppCompatActivity() {
+    private var userId = 1
     private val remoteModel = FirebaseCustomRemoteModel.Builder("anime_recsys").build()
     private val conditions = FirebaseModelDownloadConditions.Builder()
         .requireWifi()
@@ -36,20 +45,45 @@ class RecommendationActivity : AppCompatActivity() {
     private var idList = mutableListOf<Int>()
     private var userList = mutableListOf<Int>()
     private lateinit var recIds: ArrayList<Int>
-    private val service = APIService.createClient()
+    private val service = APIService.createJikanClient()
     private val results = ArrayList<AnimeDetail>()
     private lateinit var loadingDialog: Dialog
     private val loading = MutableLiveData<Boolean>()
     private var url = ""
+    private var authServiceConfig: AuthServiceConfig = AuthServiceConfig()
+    private var authState: AuthState = AuthState(authServiceConfig.getServiceConfig())
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    private val malClient: APIService = APIService.createMALClient()
     private lateinit var binding: ActivityRecommendationBinding
+    private lateinit var dialogBinding: LoadingdialoglayoutBinding
+
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityRecommendationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         loading.postValue(true)
+        dialogBinding = LoadingdialoglayoutBinding.inflate(layoutInflater)
         initViews()
+        val authService = AuthorizationService(this)
+        val authResp = AuthorizationResponse.fromIntent(intent)
+        val authEx = AuthorizationException.fromIntent(intent)
+        if(authResp!=null){
+            authState.update(authResp, authEx)
+            val tokenReq = authResp.createTokenExchangeRequest()
+            AuthorizationService(this)
+                .performTokenRequest(tokenReq, { resp2, ex2 ->
+                    authState.update(resp2, ex2)
+                    if (resp2 != null) {
+                        print("nnn")
+                    } else {
+                        print("sss")
+                    }
+                })
+
+
+        }
         FirebaseModelManager.getInstance().download(remoteModel, conditions)
             .addOnCompleteListener {
                 // Download complete. Depending on your app, you could enable the ML
@@ -59,10 +93,13 @@ class RecommendationActivity : AppCompatActivity() {
                 inputStream.close()
                 inputStream = assets.open("users.txt")
                 inputStream.bufferedReader().forEachLine { userList.add(it.toInt()) }
-                getRecommendations(5301397)
+                getRecommendations(userId)
             }
 
     }
+
+
+
     @ExperimentalStdlibApi
     private fun getRecommendations(id: Int) {
         val dbId = userList.indexOf(id)
@@ -118,19 +155,21 @@ class RecommendationActivity : AppCompatActivity() {
         var dbId: Int
         for(i in recIds){
             Handler().postDelayed({
-            dbId = this.idList[i]
-            url = "https://api.jikan.moe/v3/anime/$dbId"
-            compositeDisposable.add(service.getAnimeDetail(url)
-                ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribeOn(Schedulers.io())
-                ?.subscribe({ response ->
-                    if (response != null) {
-                        results.add(response)
-                        updateAdapter()
-                    }
-                }, { t ->
-                    onError(t)
-                }))
+                dbId = this.idList[i]
+                url = "https://api.jikan.moe/v3/anime/$dbId"
+                compositeDisposable.add(
+                    service.getAnimeDetail(url)
+                        ?.observeOn(AndroidSchedulers.mainThread())
+                        ?.subscribeOn(Schedulers.io())
+                        ?.subscribe({ response ->
+                            if (response != null) {
+                                results.add(response)
+                                updateAdapter()
+                            }
+                        }, { t ->
+                            onError(t)
+                        })
+                )
 
             }, i.toLong())
     }
@@ -177,33 +216,46 @@ class RecommendationActivity : AppCompatActivity() {
 
     private fun fetchCharacters(malId: Int?, intent: Intent) {
         url = "https://api.jikan.moe/v3/anime/$malId/characters_staff"
-        compositeDisposable.add(service.getCharactersDetail(url)
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onCharacterSuccess(response, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getCharactersDetail(url)
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onCharacterSuccess(response, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
     private fun onCharacterSuccess(response: Characters?, intent: Intent) {
         intent.putExtra("characters", response)
+        loading.postValue(false)
         startActivity(intent)
     }
 
     private fun initViews(){
-        binding.recrecycler.layoutManager = LinearLayoutManager(this@RecommendationActivity, LinearLayoutManager.HORIZONTAL, false)
+        binding.recrecycler.layoutManager =
+            if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                GridLayoutManager(this@RecommendationActivity, 2)
+            } else {
+
+                GridLayoutManager(this@RecommendationActivity, 4)
+            }
+        //dialogBinding.loadingcardtext.text = "Getting Recommendations. Please Wait..."
         initDialog()
     }
     @ExperimentalStdlibApi
     private fun updateAdapter(){
-        binding.recrecycler.adapter = RecommendationAdapter(itemOnClick, results, this@RecommendationActivity)
+        binding.recrecycler.adapter = RecommendationAdapter(
+            itemOnClick,
+            results,
+            this@RecommendationActivity
+        )
         if(results.size==10)
             loading.postValue(false)
     }
-    private fun onError(t:Throwable){
+    private fun onError(t: Throwable){
 
     }
 
@@ -211,7 +263,8 @@ class RecommendationActivity : AppCompatActivity() {
     private val itemOnClick: (View, Int, Int) -> Unit = { _, position, _ ->
         val listItem = results.get(position)
         Toast.makeText(this@RecommendationActivity, listItem.englishtitle, Toast.LENGTH_SHORT).show()
-        //initDialog()
+        //dialogBinding.loadingcardtext.text = "Getting Title Details. Please Wait..."
+        loading.postValue(true)
         val detailIntent = Intent(this, DetailsActivity::class.java)
         Handler().postDelayed({
             clicked(listItem, detailIntent)
@@ -222,9 +275,9 @@ class RecommendationActivity : AppCompatActivity() {
         loadingDialog = Dialog(this@RecommendationActivity)
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
-        loadingDialog.setContentView(R.layout.loadingdialoglayout)
+        loadingDialog.setContentView(dialogBinding.root)
         loading.observe(this@RecommendationActivity, {
-            if(loading.value!!)
+            if (loading.value!!)
                 loadingDialog.show()
             else
                 loadingDialog.dismiss()

@@ -1,6 +1,7 @@
 package com.example.anidex
 
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -21,11 +22,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.anidex.databinding.ActivityMainBinding
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
-import com.example.anidex.presentation.*
+import com.example.anidex.network.AuthServiceConfig
+import com.example.anidex.presentation.AnimeAdapter
+import com.example.anidex.presentation.AnimeViewModel
+import com.example.anidex.presentation.EventObserver
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import net.openid.appauth.AuthorizationRequest
+import net.openid.appauth.AuthorizationService
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -40,8 +46,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var animeadapter: AnimeAdapter
     private lateinit var loadingDialog: Dialog
     private var detailNetworkState: MutableLiveData<NetworkState> = MutableLiveData()
-    private val service: APIService = APIService.createClient()
+    private val service: APIService = APIService.createJikanClient()
     private val compositeDisposable = CompositeDisposable()
+    private var authServiceConfig: AuthServiceConfig = AuthServiceConfig()
     private var typeanime: String = "anime"
     private var typemanga: String = "manga"
     private var filterpop: String = "bypopularity"
@@ -107,8 +114,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.nav_foryou){
-            val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
-            startActivity(intent)
+            //val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
+            //startActivity(intent)
+            val authService = AuthorizationService(this)
+            val authRequest: AuthorizationRequest = authServiceConfig.getAuthRequest()
+            authService.performAuthorizationRequest(
+                authRequest,
+                PendingIntent.getActivity(
+                    this, 0, Intent(
+                        this@MainActivity,
+                        RecommendationActivity::class.java
+                    ), 0
+                ),
+                PendingIntent.getActivity(
+                    this, 0, Intent(
+                        this@MainActivity,
+                        MainActivity::class.java
+                    ), 0
+                )
+            )
+
         }
         if (id == R.id.nav_anime_airing) {
             if (viewModel.type.value != typeanime) {
@@ -219,14 +244,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val id = listItem?.malId
         url = "https://api.jikan.moe/v3/anime/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getAnimeDetail(url)
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onAnimeDetailsSuccess(response, listItem, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getAnimeDetail(url)
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onAnimeDetailsSuccess(response, listItem, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
@@ -236,14 +262,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val id = listItem?.malId
         url = "https://api.jikan.moe/v3/manga/$id"
         detailNetworkState.postValue(NetworkState.LOADING)
-        compositeDisposable.add(service.getMangaDetail(url)
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onMangaDetailsSuccess(response, listItem, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getMangaDetail(url)
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onMangaDetailsSuccess(response, listItem, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
@@ -252,14 +279,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "characters_staff"
         else "characters"
         url = "https://api.jikan.moe/v3/$type/$malId/$request"
-        compositeDisposable.add(service.getCharactersDetail(url)
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeOn(Schedulers.io())
-            ?.subscribe({ response ->
-                onCharacterSuccess(response, intent)
-            }, { t ->
-                onError(t)
-            })
+        compositeDisposable.add(
+            service.getCharactersDetail(url)
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe({ response ->
+                    onCharacterSuccess(response, intent)
+                }, { t ->
+                    onError(t)
+                })
         )
     }
 
@@ -394,7 +422,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setCancelable(false)
         loadingDialog.setContentView(R.layout.loadingdialoglayout)
-        detailNetworkState.observe(this@MainActivity,{
+        detailNetworkState.observe(this@MainActivity, {
             if (detailNetworkState.value?.status == NetworkState.LOADING.status)
                 loadingDialog.show()
             else

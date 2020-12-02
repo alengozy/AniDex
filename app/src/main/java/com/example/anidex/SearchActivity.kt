@@ -51,7 +51,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var loadingDialog: Dialog
     private val detailNetworkState: MutableLiveData<NetworkState> = MutableLiveData()
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
-    private val service = APIService.createClient()
+    private val service = APIService.createJikanClient()
     private lateinit var type: String
     private lateinit var url: String
 

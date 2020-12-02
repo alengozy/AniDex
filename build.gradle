@@ -18,6 +18,9 @@ buildscript {
 }
 allprojects {
     repositories {
+        maven {
+            url  "https://dl.bintray.com/openid/net.openid"
+        }
         google()
         jcenter()
     }

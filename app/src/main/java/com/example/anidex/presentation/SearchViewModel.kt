@@ -21,7 +21,7 @@ class SearchViewModel : ViewModel() {
     val type: MutableLiveData<String> = MutableLiveData("")
     val order: MutableLiveData<String> = MutableLiveData("")
     val sort: MutableLiveData<String> = MutableLiveData("")
-    private val service: APIService = APIService.createClient()
+    private val service: APIService = APIService.createJikanClient()
     private var sourceFactory: SearchDataSourceFactory =
         SearchDataSourceFactory(service, compositeDisposable,
             searchKey.value, order.value, sort.value, type.value)
@@ -41,7 +41,7 @@ class SearchViewModel : ViewModel() {
             )
         ) { data ->
             sourceFactory = SearchDataSourceFactory(
-                APIService.createClient(),
+                APIService.createJikanClient(),
                 compositeDisposable,
                 data.first,
                 data.second,

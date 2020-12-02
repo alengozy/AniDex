@@ -1,14 +1,12 @@
 package com.example.anidex.network
 
+import android.net.Uri
 import com.example.anidex.model.*
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Observable
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Url
+import retrofit2.http.*
 
 
 interface APIService {
@@ -55,8 +53,23 @@ interface APIService {
         @Query("sort") sort: String?
     ): Observable<SearchResult>?
 
+    @GET("/v2/users/@me")
+    fun getLoggedUserId(
+        @Header("Authorization") token: String
+    ): Observable<User>?
+
+    @FormUrlEncoded
+    @POST("/v1/oauth2/token")
+    fun exchangeTokens(
+        @Field("client_id") id: String,
+        @Field("code") authCode: String,
+        @Field("code_verifier") codeChallenge: String,
+        @Field("grant_type") grant: String,
+        @Field("redirect_uri") redirUri: Uri
+    ): Observable<MALToken>
+
     companion object {
-        fun createClient(): APIService {
+        fun createJikanClient(): APIService {
 
             val retrofit = Retrofit.Builder()
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
@@ -64,6 +77,16 @@ interface APIService {
                 .baseUrl("https://api.jikan.moe/")
                 .build()
             return retrofit.create(APIService::class.java)
+        }
+
+        fun createMALClient(): APIService {
+            val retrofit = Retrofit.Builder()
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("https://myanimelist.net/v1/oauth2/token/")
+                .build()
+            return retrofit.create(APIService::class.java)
+
         }
 
     }

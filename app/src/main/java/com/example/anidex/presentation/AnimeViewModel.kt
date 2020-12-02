@@ -20,7 +20,7 @@ class AnimeViewModel : ViewModel() {
     var type: MutableLiveData<String> = MutableLiveData("anime")
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
     var request: MutableLiveData<String> = MutableLiveData()
-    private val service: APIService = APIService.createClient()
+    private val service: APIService = APIService.createJikanClient()
     private var sourceFactory: GetSeriesDataSourceFactory =
         GetSeriesDataSourceFactory(service, compositeDisposable, type.value, request.value)
 
