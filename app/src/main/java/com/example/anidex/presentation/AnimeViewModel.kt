@@ -17,6 +17,7 @@ class AnimeViewModel : ViewModel() {
     var animeList: LiveData<PagedList<AnimeManga>>
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
+    private val loadSize = 50
     var type: MutableLiveData<String> = MutableLiveData("anime")
     var nState: MutableLiveData<Event<NetworkState>> = MutableLiveData()
     var request: MutableLiveData<String> = MutableLiveData()
@@ -27,7 +28,7 @@ class AnimeViewModel : ViewModel() {
     init {
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
-            .setInitialLoadSizeHint(50)
+            .setInitialLoadSizeHint(loadSize)
             .setEnablePlaceholders(false)
             .build()
         animeList = Transformations.switchMap(

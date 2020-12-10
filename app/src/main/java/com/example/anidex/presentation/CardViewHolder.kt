@@ -30,8 +30,6 @@ fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, t
 
 class CardViewHolder(private val cardBinding: CardLayoutBinding) : RecyclerView.ViewHolder(cardBinding.root) {
     fun bind(data: AnimeManga?) {
-
-
         Glide
             .with(itemView.context)
             .asBitmap()
@@ -89,8 +87,6 @@ class CardViewHolder(private val cardBinding: CardLayoutBinding) : RecyclerView.
         cardBinding.userRating.text = data.score.toString()
     }
     fun bind(data: AnimeDetail?) {
-
-
         Glide
             .with(itemView.context)
             .asBitmap()
@@ -138,8 +134,6 @@ class CardViewHolder(private val cardBinding: CardLayoutBinding) : RecyclerView.
         cardBinding.episodeCt.text = epsstring
         cardBinding.title.text = data.title
         cardBinding.userRating.text = data.score.toString()
-
-
     }
 
     companion object {

@@ -37,6 +37,9 @@
     <string name="ascending">Asc</string>
     <string name="descending">Desc</string>
     <string name="foryou">For You</string>
+    <string name="login">Log In</string>
+    <string name="logout">Log Out</string>
+    <string name="rec_welcome">Our recommendations: </string>
     <string-array name="types_array">
         <item>Anime</item>
         <item>Manga</item>

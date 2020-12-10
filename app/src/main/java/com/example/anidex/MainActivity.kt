@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -30,6 +31,7 @@ import com.google.android.material.navigation.NavigationView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationService
 import java.time.OffsetDateTime
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var filterpop: String = "bypopularity"
     private var filterupcoming: String = "upcoming"
     private var filterairing: String = "airing"
+    private val authState = readAuthState()
     private var url: String = ""
 
 
@@ -74,6 +77,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //deleteSharedPreferences("auth")
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
         overridePendingTransition(0, 0)
@@ -88,12 +92,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         navigationView.setNavigationItemSelectedListener(this)
         viewModel = ViewModelProvider(this).get(AnimeViewModel::class.java)
+        if(authState==null){
+            showLoggedOutElements()
+        } else showLoggedInElements()
         initDialog()
         initViews()
         initSwipeRefresh()
         initObservers()
     }
 
+    private fun showLoggedInElements(){
+        navigationView.menu.findItem(R.id.nav_login).isVisible = false
+        navigationView.menu.findItem(R.id.nav_login).isVisible = true
+        navigationView.menu.findItem(R.id.nav_login).isVisible = true
+    }
+    private fun showLoggedOutElements(){
+        navigationView.menu.findItem(R.id.nav_login).isVisible = true
+        navigationView.menu.findItem(R.id.nav_logout).isVisible = false
+        navigationView.menu.findItem(R.id.nav_foryou).isVisible = false
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_toolbar, menu)
@@ -113,9 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        if (id == R.id.nav_foryou){
-            //val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
-            //startActivity(intent)
+        if (id == R.id.nav_login) {
             val authService = AuthorizationService(this)
             val authRequest: AuthorizationRequest = authServiceConfig.getAuthRequest()
             authService.performAuthorizationRequest(
@@ -133,75 +148,90 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     ), 0
                 )
             )
-
+        }
+        if (id == R.id.nav_logout) {
+            deleteSharedPreferences("auth")
+            recreate()
+        }
+        if (id == R.id.nav_foryou) {
+            if (authState != null) {
+                val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
+                intent.putExtra("authState", authState.jsonSerializeString())
+                startActivity(intent)
+            }
         }
         if (id == R.id.nav_anime_airing) {
             if (viewModel.type.value != typeanime) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
-                viewModel.type.postValue(typeanime)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                    viewModel.type.postValue(typeanime)
+                }
             if (viewModel.request.value != filterairing) {
-                viewModel.request.postValue(filterairing)
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_airing)
+                    viewModel.request.postValue(filterairing)
+                    activityMainBinding.mainToolbarText.text = getString(R.string.pref_airing)
 
+                }
             }
-        }
         if (id == R.id.nav_anime_upcoming) {
             if (viewModel.type.value != typeanime) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
-                viewModel.type.postValue(typeanime)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                    viewModel.type.postValue(typeanime)
+                }
             if (viewModel.request.value != filterupcoming) {
-                viewModel.request.postValue(filterupcoming)
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_upcoming)
-            }
+                    viewModel.request.postValue(filterupcoming)
+                    activityMainBinding.mainToolbarText.text = getString(R.string.pref_upcoming)
+                }
 
-        }
+            }
         if (id == R.id.nav_anime_popular) {
             if (viewModel.type.value != typeanime) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
-                viewModel.type.postValue(typeanime)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                    viewModel.type.postValue(typeanime)
+                }
             if (viewModel.request.value != filterpop) {
-                viewModel.request.postValue(filterpop)
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
+                    viewModel.request.postValue(filterpop)
+                    activityMainBinding.mainToolbarText.text =
+                        getString(R.string.pref_by_popularity)
+                }
             }
-        }
         if (id == R.id.nav_anime_highest_rated) {
             if (viewModel.type.value != typeanime) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
-                viewModel.type.postValue(typeanime)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menuanime)
+                    viewModel.type.postValue(typeanime)
+                }
             if (viewModel.request.value != "") {
-                viewModel.request.postValue("")
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
+                    viewModel.request.postValue("")
+                    activityMainBinding.mainToolbarText.text =
+                        getString(R.string.pref_highest_rated)
+                }
             }
-        }
         if (id == R.id.nav_manga_popular) {
             if (viewModel.type.value != typemanga) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
-                viewModel.type.postValue(typemanga)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
+                    viewModel.type.postValue(typemanga)
+                }
             if (viewModel.request.value != filterpop) {
-                viewModel.request.postValue(filterpop)
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_by_popularity)
+                    viewModel.request.postValue(filterpop)
+                    activityMainBinding.mainToolbarText.text =
+                        getString(R.string.pref_by_popularity)
+                }
             }
-        }
         if (id == R.id.nav_manga_highest_rated) {
             if (viewModel.type.value != typemanga) {
-                activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
-                viewModel.type.postValue(typemanga)
-            }
+                    activityMainBinding.mainToolbarSub.text = getString(R.string.menumanga)
+                    viewModel.type.postValue(typemanga)
+                }
             if (viewModel.request.value != "") {
-                viewModel.request.postValue("")
-                activityMainBinding.mainToolbarText.text = getString(R.string.pref_highest_rated)
+                    viewModel.request.postValue("")
+                    activityMainBinding.mainToolbarText.text =
+                        getString(R.string.pref_highest_rated)
+                }
             }
+            item.isChecked = true
+            initObservers()
+            drawerLayout.closeDrawers()
+            return true
         }
-        item.isChecked = true
-        initObservers()
-        drawerLayout.closeDrawers()
-        return true
-    }
+
 
 
     @ExperimentalStdlibApi
@@ -430,5 +460,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
+
+    @NonNull
+    fun readAuthState(): AuthState? {
+        val authPrefs = getSharedPreferences("auth", MODE_PRIVATE)
+        val data = authPrefs.getString("stateJson", null)
+        return if (data != null) {
+            AuthState.jsonDeserialize(data)
+        } else {
+            null
+        }
+    }
+
 
 }

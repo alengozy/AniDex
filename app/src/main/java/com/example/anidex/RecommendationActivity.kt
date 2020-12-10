@@ -3,10 +3,12 @@ package com.example.anidex
 import RecommendationAdapter
 import android.app.Dialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.PersistableBundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.widget.Toast
@@ -25,10 +27,8 @@ import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import net.openid.appauth.AuthState
-import net.openid.appauth.AuthorizationException
-import net.openid.appauth.AuthorizationResponse
-import net.openid.appauth.AuthorizationService
+import net.openid.appauth.*
+import org.json.JSONException
 import org.tensorflow.lite.Interpreter
 import java.io.InputStream
 import java.time.OffsetDateTime
@@ -60,30 +60,90 @@ class RecommendationActivity : AppCompatActivity() {
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityRecommendationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.recToolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        binding.recToolbar.setNavigationOnClickListener {
+            finish()
+        }
         loading.postValue(true)
         dialogBinding = LoadingdialoglayoutBinding.inflate(layoutInflater)
+        when {
+            savedInstanceState!=null -> {
+                try {
+                    savedInstanceState
+                        .getString("authState", "{}")
+                        .let { AuthState.jsonDeserialize(it) }
+                } catch (ex: JSONException) {
+                    val m = Throwable().stackTrace[0]
+                    Log.e("RecommendationActivity", "${m}: $ex")
+                    authState = AuthState()
+                }
+            }
+            intent.getStringExtra("authState")!=null -> {
+                authState= AuthState.jsonDeserialize(intent.getStringExtra("authState")!!)
+            }
+            else -> authState = AuthState()
+        }
         initViews()
-        val authService = AuthorizationService(this)
         val authResp = AuthorizationResponse.fromIntent(intent)
         val authEx = AuthorizationException.fromIntent(intent)
         if(authResp!=null){
             authState.update(authResp, authEx)
             val tokenReq = authResp.createTokenExchangeRequest()
             AuthorizationService(this)
-                .performTokenRequest(tokenReq, { resp2, ex2 ->
+                .performTokenRequest(tokenReq) { resp2, ex2 ->
                     authState.update(resp2, ex2)
                     if (resp2 != null) {
-                        print("nnn")
+                        authState.update(resp2, ex2)
+                        onTokenResponse()
                     } else {
-                        print("sss")
+                       return@performTokenRequest
                     }
-                })
-
-
+                }
+        } else {
+            onTokenResponse()
         }
+    }
+
+    @ExperimentalStdlibApi
+    private fun onTokenResponse(){
+        authState.performActionWithFreshTokens(AuthorizationService(this), object :
+            AuthState.AuthStateAction {
+            override fun execute(
+                accessToken: String?,
+                idToken: String?,
+                ex: AuthorizationException?
+            ) {
+                if (ex != null) {
+                    // negotiation for fresh tokens failed, check ex for more details
+                    return
+                }
+                compositeDisposable.add(
+                    malClient.getLoggedUserId("Bearer $accessToken")
+                        ?.observeOn(AndroidSchedulers.mainThread())
+                        ?.subscribeOn(Schedulers.io())
+                        ?.subscribe({ resp ->
+                            userId = resp.id
+                            onIdFetched()
+                        }, { t ->
+                            onError(t)
+                            loading.postValue(false)
+                        })
+
+                )
+            }
+        })
+
+
+
+    }
+
+
+    @ExperimentalStdlibApi
+    private fun onIdFetched(){
         FirebaseModelManager.getInstance().download(remoteModel, conditions)
             .addOnCompleteListener {
                 // Download complete. Depending on your app, you could enable the ML
@@ -95,10 +155,7 @@ class RecommendationActivity : AppCompatActivity() {
                 inputStream.bufferedReader().forEachLine { userList.add(it.toInt()) }
                 getRecommendations(userId)
             }
-
     }
-
-
 
     @ExperimentalStdlibApi
     private fun getRecommendations(id: Int) {
@@ -234,6 +291,15 @@ class RecommendationActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    override fun onSaveInstanceState(
+        outState: Bundle,
+        outPersistentState: PersistableBundle
+    ) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        outState.putString("authState", authState.jsonSerializeString())
+        writeAuthState(authState)
+    }
+
     private fun initViews(){
         binding.recrecycler.layoutManager =
             if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -284,6 +350,20 @@ class RecommendationActivity : AppCompatActivity() {
 
         })
 
+    }
+
+
+
+    private fun writeAuthState(state: AuthState) {
+        val authPrefs: SharedPreferences = getSharedPreferences("auth", MODE_PRIVATE)
+        authPrefs.edit()
+            .putString("stateJson", state.jsonSerializeString())
+            .apply()
+    }
+
+    override fun finish(){
+        writeAuthState(authState)
+        super.finish()
     }
     }
 

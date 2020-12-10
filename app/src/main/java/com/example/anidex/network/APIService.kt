@@ -83,7 +83,7 @@ interface APIService {
             val retrofit = Retrofit.Builder()
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("https://myanimelist.net/v1/oauth2/token/")
+                .baseUrl("https://api.myanimelist.net/")
                 .build()
             return retrofit.create(APIService::class.java)
 

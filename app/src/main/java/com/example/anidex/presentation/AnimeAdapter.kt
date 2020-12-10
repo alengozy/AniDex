@@ -19,10 +19,8 @@ class AnimeAdapter(val itemClickListener: (View, Int, Int) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
         if (holder is CardViewHolder)
             holder.bind(getItem(position))
-
     }
 
 

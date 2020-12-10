@@ -1,12 +1,13 @@
 package com.example.anidex.network
 
 import android.net.Uri
+import com.example.anidex.private.ClientData
 import net.openid.appauth.*
 
 
 class AuthServiceConfig {
-    var clientId = "c957f1e46b7e1b75909ae75da67d93a9"
-    var codeChallenge = "vK62fevFKa6FSRcf2T-ilR7VistaripbXSBuljiqT1euD3ALajIqQ-CtSboGH-CxKMUZcMOiYPIWRBcqdXPui_gXVsHCsgcjvpkezSSwnBLlvTsEhOBEjat8tjI1WSXK"
+    private var clientId = ClientData.clientId
+    private var codeChallenge = ClientData.codeChallenge
     private var serviceConfig: AuthorizationServiceConfiguration = AuthorizationServiceConfiguration(
         Uri.parse("https://myanimelist.net/v1/oauth2/authorize"),  // authorization endpoint
         Uri.parse("https://myanimelist.net/v1/oauth2/token")
@@ -20,7 +21,7 @@ class AuthServiceConfig {
             Uri.parse("com.example.anidex://oauth2redirect")
         ) // the redirect URI to which the auth response is sent
         return authRequestBuilder
-            .setCodeVerifier(codeChallenge)
+            .setCodeVerifier(codeChallenge, codeChallenge, AuthorizationRequest.CODE_CHALLENGE_METHOD_PLAIN)
             .build()
     }
 

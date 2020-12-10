@@ -25,8 +25,7 @@
             android:name=".DetailsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".RecommendationActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".RecommendationActivity">
         </activity>
     </application>
 </manifest>

@@ -7,5 +7,5 @@ data class User (
     @Expose
     @SerializedName("id") var id: Int,
     @Expose
-    @SerializedName("name") var name: Int
+    @SerializedName("name") var name: String
 )
