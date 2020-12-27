@@ -3,6 +3,7 @@ package com.example.anidex
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
@@ -20,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.room.FtsOptions
 import com.example.anidex.databinding.ActivityMainBinding
 import com.example.anidex.model.*
 import com.example.anidex.network.APIService
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var filterpop: String = "bypopularity"
     private var filterupcoming: String = "upcoming"
     private var filterairing: String = "airing"
-    private val authState = readAuthState()
+    private var authState: AuthState? = null
     private var url: String = ""
 
 
@@ -77,7 +79,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //deleteSharedPreferences("auth")
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
         overridePendingTransition(0, 0)
@@ -92,24 +93,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         navigationView.setNavigationItemSelectedListener(this)
         viewModel = ViewModelProvider(this).get(AnimeViewModel::class.java)
-        if(authState==null){
-            showLoggedOutElements()
-        } else showLoggedInElements()
         initDialog()
         initViews()
         initSwipeRefresh()
         initObservers()
+        checkAuthState()
+    }
+
+    private fun checkAuthState(){
+        authState = readAuthState()
+        if(authState == null){
+            showLoggedOutElements()
+        } else {
+            showLoggedInElements()
+        }
     }
 
     private fun showLoggedInElements(){
-        navigationView.menu.findItem(R.id.nav_login).isVisible = false
-        navigationView.menu.findItem(R.id.nav_login).isVisible = true
-        navigationView.menu.findItem(R.id.nav_login).isVisible = true
+        val navMenu = navigationView.menu
+        navMenu.findItem(R.id.nav_foryou).isVisible = true
+        navMenu.findItem(R.id.nav_logout).isVisible = true
+        navMenu.findItem(R.id.nav_login).isVisible = false
+        invalidateOptionsMenu()
     }
     private fun showLoggedOutElements(){
-        navigationView.menu.findItem(R.id.nav_login).isVisible = true
-        navigationView.menu.findItem(R.id.nav_logout).isVisible = false
-        navigationView.menu.findItem(R.id.nav_foryou).isVisible = false
+        val navMenu = navigationView.menu
+        navMenu.findItem(R.id.nav_foryou).isVisible = false
+        navMenu.findItem(R.id.nav_logout).isVisible = false
+        navMenu.findItem(R.id.nav_login).isVisible = true
+        invalidateOptionsMenu()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -151,12 +163,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         if (id == R.id.nav_logout) {
             deleteSharedPreferences("auth")
-            recreate()
+            restartForAuthState()
+
         }
         if (id == R.id.nav_foryou) {
             if (authState != null) {
                 val intent = Intent(this@MainActivity, RecommendationActivity::class.java)
-                intent.putExtra("authState", authState.jsonSerializeString())
+                intent.putExtra("authState", authState!!.jsonSerializeString())
                 startActivity(intent)
             }
         }
@@ -233,6 +246,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
 
+    private fun restartForAuthState(){
+        finish()
+        startActivity(Intent(this, MainActivity::class.java))
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
 
     @ExperimentalStdlibApi
     private fun initViews() {
@@ -470,6 +488,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             null
         }
+    }
+
+    override fun onResume(){
+        super.onResume()
+        checkAuthState()
     }
 
 

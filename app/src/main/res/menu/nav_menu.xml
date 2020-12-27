@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/logingroup">
     <item android:id="@+id/nav_login"
         android:title="@string/login"
         android:icon="@drawable/login"/>
     <item android:id="@+id/nav_foryou"
         android:title="@string/foryou"
-        android:icon="@drawable/person"
-        android:visible="false"/>
+        android:icon="@drawable/person"/>
     <item android:id="@+id/nav_logout"
         android:title="@string/logout"
-        android:icon="@drawable/logout"
-        android:visible="false"/>
-    <group android:checkableBehavior="single">
+        android:icon="@drawable/logout"/>
+    </group>
+    <group android:checkableBehavior="single"
+        android:orderInCategory="10">
         <item android:title="@string/menuanime">
             <menu>
                 <item android:id="@+id/nav_anime_upcoming"
@@ -29,7 +30,8 @@
             </menu>
         </item>
     </group>
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single"
+        android:orderInCategory="20">
         <item android:title="@string/menumanga"
               android:icon="@drawable/manga">
             <menu>
