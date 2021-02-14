@@ -36,6 +36,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationService
+import java.io.InputStream
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -478,6 +479,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
+
 
     @NonNull
     fun readAuthState(): AuthState? {

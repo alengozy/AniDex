@@ -68,6 +68,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.0.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation platform('com.google.firebase:firebase-bom:26.0.0')
+    implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.google.firebase:firebase-ml-model-interpreter'
     implementation 'org.tensorflow:tensorflow-lite:2.3.0'
     annotationProcessor "androidx.room:room-compiler:2.2.5"

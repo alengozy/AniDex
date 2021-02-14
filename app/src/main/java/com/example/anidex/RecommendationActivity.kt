@@ -21,18 +21,31 @@ import com.example.anidex.model.AnimeDetail
 import com.example.anidex.model.Characters
 import com.example.anidex.network.APIService
 import com.example.anidex.network.AuthServiceConfig
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import net.openid.appauth.*
+import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationException
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.AuthorizationService
 import org.json.JSONException
 import org.tensorflow.lite.Interpreter
 import java.io.InputStream
 import java.time.OffsetDateTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 class RecommendationActivity : AppCompatActivity() {
@@ -56,10 +69,12 @@ class RecommendationActivity : AppCompatActivity() {
     private val malClient: APIService = APIService.createMALClient()
     private lateinit var binding: ActivityRecommendationBinding
     private lateinit var dialogBinding: LoadingdialoglayoutBinding
+    private lateinit var database: DatabaseReference
 
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Firebase.database.setPersistenceEnabled(true)
         binding = ActivityRecommendationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.recToolbar)
@@ -148,19 +163,28 @@ class RecommendationActivity : AppCompatActivity() {
             .addOnCompleteListener {
                 // Download complete. Depending on your app, you could enable the ML
                 // feature, or switch from the local model to the remote model, etc.
-                var inputStream: InputStream = assets.open("ids.txt")
-                inputStream.bufferedReader().forEachLine { idList.add(it.toInt()) }
-                inputStream.close()
-                inputStream = assets.open("users.txt")
+                database = Firebase.database.reference
+                val inputStream: InputStream = assets.open("users.txt")
                 inputStream.bufferedReader().forEachLine { userList.add(it.toInt()) }
-                getRecommendations(userId)
+                val mapListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        idList = dataSnapshot.child("idList").getValue<MutableList<Int>>()!!
+                        getRecommendations(userId)
+                    }
+
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                    }
+                }
+                database.addListenerForSingleValueEvent(mapListener)
+
             }
     }
 
     @ExperimentalStdlibApi
     private fun getRecommendations(id: Int) {
         val dbId = userList.indexOf(id)
-        val user = FloatArray(1) {dbId.toFloat()}
+        val user = FloatArray(1) { dbId.toFloat() }
         lateinit var anime: FloatArray
         lateinit var input: Array<FloatArray>
         lateinit var output: Array<FloatArray>
@@ -209,10 +233,11 @@ class RecommendationActivity : AppCompatActivity() {
 
     @ExperimentalStdlibApi
     private fun fetchRecommendations(){
+        var delay: Long = 0
         var dbId: Int
         for(i in recIds){
             Handler().postDelayed({
-                dbId = this.idList[i]
+                dbId = this.idList[i].toInt()
                 url = "https://api.jikan.moe/v3/anime/$dbId"
                 compositeDisposable.add(
                     service.getAnimeDetail(url)
@@ -228,7 +253,10 @@ class RecommendationActivity : AppCompatActivity() {
                         })
                 )
 
-            }, i.toLong())
+            }, delay)
+            delay+=500
+
+
     }
 }
 
